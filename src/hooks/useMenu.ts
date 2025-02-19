@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Category } from "@/types/category";
+import { Menu } from "@/types/menu";
 import axios from "axios";
 
-const API_URL = "http://localhost:5120/category";
+const API_URL = "http://localhost:5120/Menu";
 
-export const useCategory = () => {
+export const useMenu = () => {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -30,11 +30,11 @@ export const useCategory = () => {
         data,
         loading,
         error,
-        generateCategoryID: (): Promise<string> => fetchData("/generateCategoryID"),
-        getCategoryBy: (): Promise<any> => fetchData("/getCategoryBy"),
-        getCategoryByID: (category_id: string): Promise<any> => fetchData("/getCategoryByID", { category_id }),
-        updateCategoryBy: (data: Category): Promise<any> => fetchData("/updateCategoryBy", data),
-        insertCategory: (data: Category): Promise<Category> => fetchData("/insertCategory", data),
-        deleteCategoryBy: (category_id: string): Promise<any> => fetchData("/deleteCategoryBy", { category_id }),
+        generateMenuID: (): Promise<string> => fetchData("/generateMenuID"),
+        getMenuBy: (): Promise<any> => fetchData("/getMenuBy"),
+        getMenuByID: (menu_id: string): Promise<any> => fetchData("/getMenuByID", { menu_id }),
+        updateMenuBy: (data: Menu): Promise<any> => fetchData("/updateMenuBy", data),
+        insertMenu: (data: Menu): Promise<Menu> => fetchData("/insertMenu", data),
+        deleteMenuBy: (menu_id: string): Promise<any> => fetchData("/deleteMenuBy", { menu_id }),
     };
 };
