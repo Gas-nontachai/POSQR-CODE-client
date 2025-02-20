@@ -1,158 +1,222 @@
 "use client";
-
-import React, { useState, useEffect } from "react";
-import { useCategory } from "@/hooks/useCategory";
-import { Category } from "@/types/category";
+import React, { useState, useEffect, useRef } from "react";
+import { useTable } from "@/hooks/useTable";
+import { Table } from "@/types/table";
 import Swal from "sweetalert2";
+import AddTableForm from "@/components/Table/AddTableForm";
+import UpdateTableForm from "@/components/Table/UpdateTableForm";
 
-const ManageUserPage: React.FC = () => {
+const ManageTablePage = () => {
+  const { getTableBy, insertTable, updateTableBy, deleteTableBy } = useTable();
+  const [newTable, setNewTable] = useState<Table[]>([{
+    table_id: '',
+    table_number: '',
+    qrcode: '',
+    table_status: '',
+    add_date: new Date()
+  }]);
 
-  const { generateCategoryID, getCategoryBy, insertCategory, deleteCategoryBy, updateCategoryBy } = useCategory();
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [loading, SetLoading] = useState<boolean>(true)
+  const tableToUpdate = useRef<Table>({
+    table_id: '',
+    table_number: '',
+    qrcode: '',
+    table_status: '',
+    add_date: ''
+  })
 
-  const [newCategory, setNewCategory] = useState<Category>({
-    category_id: "",
-    category_name: "",
-  });
-  const [FetchCate, setFetchCate] = useState<Category[]>([])
-  const [loading, setLoading] = useState(Boolean)
+  const manageItems = [
+    { text: "Table Number", },
+    { text: "Status", },
+    { text: "QR Code", },
+    { text: "Action", },
+  ]
+
+  const statusItems = [
+    { value: "available", title: "ว่าง" },
+    { value: "occupied", title: "มีผู้ใช้งาน" },
+    { value: "reserved", title: "จองแล้ว" },
+    { value: "pending", title: "กำลังรอการยืนยัน" },
+    { value: "confirmed", title: "ยืนยันการจองแล้ว" },
+    { value: "cancelled", title: "ยกเลิกการจอง" },
+    { value: "no_show", title: "ลูกค้าไม่มา" },
+    { value: "in_use", title: "กำลังถูกใช้งาน" },
+    { value: "closed", title: "ปิดการใช้งาน" },
+  ];
 
   useEffect(() => {
-    fetchData()
+    fetchData();
   }, []);
 
   const fetchData = async () => {
-    setLoading(true);
-    const res = await getCategoryBy();
-
-    setTimeout(() => {
-      setLoading(false);
-      setFetchCate(res);
-    }, 1000);
-  };
-
-
-  const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewCategory({ ...newCategory, category_name: e.target.value });
-  };
-
-  const onSubmit = async () => {
-    if (!newCategory.category_name.trim()) {
-      Swal.fire("Error", "กรุณากรอกชื่อ Category", "warning");
-      return;
-    }
     try {
-      const categoryID = await generateCategoryID();
-      const category = { ...newCategory, category_id: categoryID };
-      await insertCategory(category);
-      Swal.fire("สำเร็จ", "เพิ่มหมวดหมู่เรียบร้อย", "success");
-      setNewCategory({ category_id: "", category_name: "" });
-      await fetchData()
+      const res = await getTableBy();
+      setNewTable(Array.isArray(res) ? res : [res])
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching table data:", error);
+    } finally {
+      SetLoading(false)
+      setOpenUpdateDialog(false)
+      setOpenAddDialog(false)
     }
   };
 
-  const onDelete = async (category_id: string) => {
+  const onSubmit = async (TableData: Table) => {
+    await insertTable(TableData).then(() => {
+      Swal.fire({
+        toast: true,
+        icon: "success",
+        title: "Table has been added successfully!",
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+      });
+      fetchData();
+    }).catch((error) => {
+      Swal.fire(
+        'Error!',
+        'There was an error adding the table.',
+        'error'
+      );
+      console.error("Error adding table:", error);
+    });
+  }
+
+  const onUpdate = async (TableData: Table) => {
+    await updateTableBy(TableData).then(() => {
+      Swal.fire({
+        toast: true,
+        icon: "success",
+        title: "Table has been updated successfully!",
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1000,
+        timerProgressBar: true,
+      });
+      fetchData();
+    }).catch((error) => {
+      Swal.fire(
+        'Error!',
+        'There was an error adding the table.',
+        'error'
+      );
+      console.error("Error adding table:", error);
+    });
+  }
+
+  const openDialogUpdate = async (table_id: string) => {
+    tableToUpdate.current = newTable.find(table => table.table_id === table_id) || {
+      table_id: '',
+      table_number: '',
+      qrcode: '',
+      table_status: '',
+      add_date: new Date()
+    };
+    if (tableToUpdate) {
+      setOpenUpdateDialog(true);
+    }
+  }
+
+  const onDelete = async (table_id: string) => {
     Swal.fire({
-      title: "ยืนยันการลบ?",
-      text: "คุณแน่ใจหรือไม่ว่าต้องการลบหมวดหมู่นี้?",
-      icon: "warning",
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "ใช่, ลบเลย!",
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await deleteCategoryBy(category_id);
-        Swal.fire("Deleted!", "ลบหมวดหมู่เรียบร้อยแล้ว", "success");
-        await fetchData()
+        try {
+          await deleteTableBy({ table_id });
+          Swal.fire(
+            'Deleted!',
+            'Your table has been deleted.',
+            'success'
+          );
+          fetchData();
+        } catch (error) {
+          Swal.fire(
+            'Error!',
+            'There was an error deleting the table.',
+            'error'
+          );
+        }
       }
     });
   };
 
-  const onUpdate = async (category_id: string) => {
-    const categoryToUpdate = FetchCate.find(category => category.category_id === category_id);
-    if (categoryToUpdate) {
-      const { value: newCategoryName } = await Swal.fire({
-        title: 'แก้ไขหมวดหมู่',
-        input: 'text',
-        inputLabel: 'ชื่อหมวดหมู่ใหม่',
-        inputValue: categoryToUpdate.category_name,
-        showCancelButton: true,
-        inputValidator: (value) => {
-          if (!value) {
-            return 'กรุณากรอกชื่อหมวดหมู่';
-          }
-        }
-      });
-
-      if (newCategoryName) {
-        const updatedCategory = { ...categoryToUpdate, category_name: newCategoryName };
-        await updateCategoryBy(updatedCategory);
-        Swal.fire('สำเร็จ', 'แก้ไขหมวดหมู่เรียบร้อย', 'success');
-        await fetchData();
-      }
-    }
-  }
-
   return (
-    <div className="container mx-auto my-10 p-5 max-w-3xl bg-white shadow-lg rounded-lg">
-      <h1 className="bg-blue-600 text-white text-center p-4 rounded-md text-2xl font-bold">
-        จัดการหมวดหมู่
-      </h1>
-
-      <div className="flex gap-3 mt-5">
-        <input
-          type="text"
-          name="category_name"
-          value={newCategory.category_name}
-          onChange={onChangeInput}
-          placeholder="เพิ่มหมวดหมู่ใหม่"
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={onSubmit}
-          className="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600"
-        >
-          ➕ เพิ่ม
-        </button>
+    <div>
+      {loading && (
+        <div className=" flex justify-center">
+          <span className="text-xl font-semibold text-gray-700">Loading...</span>
+        </div>
+      )}
+      <div className="flex justify-center mt-4">
+        <button onClick={() => setOpenAddDialog(!openAddDialog)}
+          className=" bg-green-500 hover:bg-green-700 p-2 rounded text-white">เพิ่มโต๊ะ</button>
       </div>
 
-      <div className="mt-5">
-        <h2 className="text-lg font-semibold mb-2">รายการหมวดหมู่</h2>
-        <div className="bg-gray-100 p-3 rounded-md">
-          {loading && <p>🔄 กำลังโหลดข้อมูล...</p>}
-          {FetchCate.length > 0 ? (
-            <ul>
-              {FetchCate.map((item) => (
-                <li
-                  key={item.category_id}
-                  className="flex justify-between items-center bg-white p-2 rounded-md mb-2 shadow"
-                >
-                  <span className="text-gray-700">{item.category_name}</span>
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto border-collapse">
+          <thead>
+            <tr className="bg-gray-100 text-left" >
+              {manageItems.map(item => (
+                <th className="px-4 py-2 border" key={item.text}>{item.text}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {!loading && newTable.map((item) => (
+              <tr key={item.table_id} className="border-b">
+                <td className="px-4 py-2">{item.table_number}</td>
+                <td className="px-4 py-2">{item.table_status}</td>
+                <td className="px-4 py-2">{item.qrcode}</td>
+                <td>
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => onDelete(item.category_id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                    >ลบ
+                    <button onClick={() => openDialogUpdate(item.table_id)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded">
+                      Edit
                     </button>
-                    <button
-                      onClick={() => onUpdate(item.category_id)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
-                    >
-                      แก้ไข
+                    <button onClick={() => onDelete(item.table_id)} className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded">
+                      Delete
                     </button>
                   </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500 text-center">ไม่มีหมวดหมู่</p>
-          )}
-        </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+
+      {openAddDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenAddDialog(false)} >
+          <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setOpenAddDialog(false)}
+              className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
+            > X </button>
+            <AddTableForm count_table={newTable.length} statusItems={statusItems} onSubmit={onSubmit} />
+          </div>
+        </div>
+      )}
+
+      {openUpdateDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenUpdateDialog(false)} >
+          <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setOpenUpdateDialog(false)}
+              className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
+            > X </button>
+            <UpdateTableForm table_data={tableToUpdate.current} statusItems={statusItems} onSubmit={onUpdate} />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
 
-export default ManageUserPage;
+export default ManageTablePage;
