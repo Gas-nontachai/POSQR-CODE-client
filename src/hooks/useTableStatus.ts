@@ -18,7 +18,7 @@ export const useTableStatus = () => {
     return {
         generateTableStatusID: (): Promise<string> => fetchData("/generateTableStatusID"),
         getTableStatusBy: (): Promise<TableStatus[]> => fetchData("/getTableStatusBy"),
-        getTableStatusByID: (data: { table_status_id: string }): Promise<{ table_status_id: string }> => fetchData("/getTableStatusByID", data),
+        getTableStatusByID: (data: { table_status_id: string }): Promise<TableStatus> => fetchData("/getTableStatusByID", data),
         updateTableStatusBy: (data: TableStatus): Promise<TableStatus> => fetchData("/updateTableStatusBy", data),
         insertTableStatus: (data: TableStatus): Promise<TableStatus> => fetchData("/insertTableStatus", data),
         deleteTableStatusBy: (data: { table_status_id: string }): Promise<{ table_status_id: string }> => fetchData("/deleteTableStatusBy", data),

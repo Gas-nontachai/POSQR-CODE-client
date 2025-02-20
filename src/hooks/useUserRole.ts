@@ -21,7 +21,7 @@ export const useUserRole = () => {
     return {
         generateUserRoleID: (): Promise<string> => fetchData("/generateUserRoleID"),
         getUserRoleBy: (): Promise<UserRole[]> => fetchData("/getUserRoleBy"),
-        getUserRoleByID: (data: { user_role_id: string }): Promise<{ user_role_id: string }> => fetchData("/getUserRoleByID", data),
+        getUserRoleByID: (data: { user_role_id: string }): Promise<UserRole> => fetchData("/getUserRoleByID", data),
         updateUserRoleBy: (data: UserRole): Promise<UserRole> => fetchData("/updateUserRoleBy", data),
         insertUserRole: (data: UserRole): Promise<UserRole> => fetchData("/insertUserRole", data),
         deleteUserRoleBy: (data: { user_role_id: string }): Promise<{ user_role_id: string }> => fetchData("/deleteUserRoleBy", data),

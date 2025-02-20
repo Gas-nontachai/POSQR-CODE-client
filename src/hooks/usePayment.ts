@@ -21,7 +21,7 @@ export const usePayment = () => {
     return {
         generatePaymentID: (): Promise<string> => fetchData("/generatePaymentID"),
         getPaymentBy: (): Promise<Payment[]> => fetchData("/getPaymentBy"),
-        getPaymentByID: (data: { payment_id: string }): Promise<{ payment_id: string }> => fetchData("/getPaymentByID", data),
+        getPaymentByID: (data: { payment_id: string }): Promise<Payment> => fetchData("/getPaymentByID", data),
         updatePaymentBy: (data: Payment): Promise<Payment> => fetchData("/updatePaymentBy", data),
         insertPayment: (data: Payment): Promise<Payment> => fetchData("/insertPayment", data),
         deletePaymentBy: (data: { payment_id: string }): Promise<{ payment_id: string }> => fetchData("/deletePaymentBy", data),
