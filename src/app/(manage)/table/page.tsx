@@ -5,6 +5,7 @@ import { Table } from "@/types/table";
 import Swal from "sweetalert2";
 import AddTableForm from "@/components/Table/AddTableForm";
 import UpdateTableForm from "@/components/Table/UpdateTableForm";
+import { motion } from "framer-motion";
 
 const ManageTablePage = () => {
   const { getTableBy, insertTable, updateTableBy, deleteTableBy } = useTable();
@@ -157,65 +158,83 @@ const ManageTablePage = () => {
           <span className="text-xl font-semibold text-gray-700">Loading...</span>
         </div>
       )}
-      <div className="flex justify-center mt-4">
-        <button onClick={() => setOpenAddDialog(!openAddDialog)}
-          className=" bg-green-500 hover:bg-green-700 p-2 rounded text-white">เพิ่มโต๊ะ</button>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-left" >
-              {manageItems.map(item => (
-                <th className="px-4 py-2 border" key={item.text}>{item.text}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {!loading && newTable.map((item) => (
-              <tr key={item.table_id} className="border-b">
-                <td className="px-4 py-2">{item.table_number}</td>
-                <td className="px-4 py-2">{item.table_status}</td>
-                <td className="px-4 py-2">{item.qrcode}</td>
-                <td>
-                  <div className="flex gap-2">
-                    <button onClick={() => openDialogUpdate(item.table_id)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded">
-                      Edit
-                    </button>
-                    <button onClick={() => onDelete(item.table_id)} className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded">
-                      Delete
-                    </button>
-                  </div>
-                </td>
+      <div className="container mx-auto mt-10">
+        <div className="flex justify-end mb-4">
+          <button onClick={() => setOpenAddDialog(!openAddDialog)}
+            className=" bg-green-500 hover:bg-green-700 p-2 rounded text-white font-bold">+ เพิ่มโต๊ะ</button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto border-collapse">
+            <thead>
+              <tr className="bg-gray-100 text-left" >
+                {manageItems.map(item => (
+                  <th className="px-4 py-2 border" key={item.text}>{item.text}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {!loading && newTable.map((item) => (
+                <tr key={item.table_id} className="border-b">
+                  <td className="px-4 py-2">{item.table_number}</td>
+                  <td className="px-4 py-2">{item.table_status}</td>
+                  <td className="px-4 py-2">{item.qrcode}</td>
+                  <td className="px-4 py-2">
+                    <div className="flex gap-2">
+                      <button onClick={() => openDialogUpdate(item.table_id)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded">
+                        Edit
+                      </button>
+                      <button onClick={() => onDelete(item.table_id)} className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded">
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {openAddDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenAddDialog(false)} >
-          <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setOpenAddDialog(false)}
-              className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
-            > X </button>
-            <AddTableForm count_table={newTable.length} statusItems={statusItems} onSubmit={onSubmit} />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 10 }}
+          transition={{ duration: 0.1 }}
+          className="my-box"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenAddDialog(false)} >
+            <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
+              <button onClick={() => setOpenAddDialog(false)}
+                className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
+              > X </button>
+              <AddTableForm count_table={newTable.length} statusItems={statusItems} onSubmit={onSubmit} />
+            </div>
           </div>
-        </div>
-      )}
+        </motion.div>
+      )
+      }
 
       {openUpdateDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenUpdateDialog(false)} >
-          <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setOpenUpdateDialog(false)}
-              className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
-            > X </button>
-            <UpdateTableForm table_data={tableToUpdate.current} statusItems={statusItems} onSubmit={onUpdate} />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 10 }}
+          transition={{ duration: 0.1 }}
+          className="my-box"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenUpdateDialog(false)} >
+            <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
+              <button onClick={() => setOpenUpdateDialog(false)}
+                className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
+              > X </button>
+              <UpdateTableForm table_data={tableToUpdate.current} statusItems={statusItems} onSubmit={onUpdate} />
+            </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
-    </div>
+    </div >
   );
 };
 
