@@ -3,12 +3,11 @@ import React, { useState, useEffect } from "react";
 import { useUser } from "@/hooks/useUser";
 import { User } from "@/types/user";
 import Swal from "sweetalert2";
+import UpdateUserForm from "@/components/User/UpdateUserForm";
 
 const ManageUserPage: React.FC = () => {
 
-  const { generateUserID, getUserBy, insertUser, deleteUserBy, updateUserBy } = useUser();
-
-  const [showModal, setShowModal] = useState(false)
+  const { getUserBy, getUserByID, insertUser, deleteUserBy } = useUser();
   const [newUser, setNewUser] = useState<User>({
     user_id: "",
     user_fullname: "",
@@ -17,7 +16,14 @@ const ManageUserPage: React.FC = () => {
     user_password: "",
     user_img: ""
   });
-
+  const [updateUser, setUpdateUser] = useState<User[]>([{
+    user_id: "",
+    user_fullname: "",
+    user_email: "",
+    user_phone: "",
+    user_password: "",
+    user_img: ""
+  }]);
   const [FetchUser, setFetchUser] = useState<User[]>([{
     user_id: "",
     user_fullname: "",
@@ -26,18 +32,15 @@ const ManageUserPage: React.FC = () => {
     user_password: "",
     user_img: ""
   }]);
+  const [showModal, setShowModal] = useState(false)
+
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
-    try {
-      const res = await getUserBy();
-      setFetchUser(res);
-
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
+    const res = await getUserBy();
+    setFetchUser(res);
   };
 
   const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,8 +49,6 @@ const ManageUserPage: React.FC = () => {
       [e.target.name]: e.target.value
     }));
   };
-
-
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +65,6 @@ const ManageUserPage: React.FC = () => {
           Swal.showLoading();
         }
       });
-
       await fetchData()
       setNewUser({
         user_id: "",
@@ -86,45 +86,38 @@ const ManageUserPage: React.FC = () => {
     }
   };
 
-  const onUpdate = (user_id: string) => {
-
-  }
-
-  const handleDialogUpdate = (role: string) => {
-    if (role == 'open') {
-      setShowModal(true)
-    } else if (role == 'close') {
-      setShowModal(false)
-    }
-  }
+  const handleDialogUpdate = async (user_id: string, role: string) => {
+    role === 'open'
+      ? (setUpdateUser(await getUserByID({ user_id })), setShowModal(true))
+      : (setShowModal(false), await fetchData());
+  };
 
   const onDelete = (user_id: string) => {
-    if (user_id) {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: 'You won\'t be able to revert this!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete it!',
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          await deleteUserBy({ user_id: user_id });
-          Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'Deleted!',
-            text: 'User has been deleted.',
-            showConfirmButton: false,
-            timer: 1500,
-            toast: true
-          });
-          await fetchData()
-        }
-      });
-    }
+    user_id && Swal.fire({
+      title: 'Are you sure?',
+      text: 'You won\'t be able to revert this!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await deleteUserBy({ user_id });
+        Swal.fire({
+          position: 'top-end',
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'User has been deleted.',
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true
+        });
+        await fetchData();
+      }
+    });
   };
+
 
   return (
     <div className="container mx-auto my-40 p-5 max-w-3xl bg-white shadow-lg rounded-lg">
@@ -202,8 +195,8 @@ const ManageUserPage: React.FC = () => {
               <td className="py-2">
                 <div className="flex">
                   <button
-                    onClick={() => handleDialogUpdate('open')}
-                    className="bg-blue-500 text-white py-1 px-3 rounded-lg text-sm hover:bg-blue-600"
+                    onClick={() => handleDialogUpdate(item.user_id, 'open')}
+                    className="bg-sky-500 text-white py-1 px-3 rounded-lg text-sm hover:bg-sky-600"
                   >
                     Edit
                   </button>
@@ -221,49 +214,8 @@ const ManageUserPage: React.FC = () => {
       </table>
 
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h2 className="text-xl font-semibold mb-4">Update User</h2>
-            <form onSubmit={(e) => { e.preventDefault(); onUpdate(newUser.user_id); }}>
-              <div className="mb-4">
-                <label htmlFor="fullname" className="block text-sm font-medium">Full Name</label>
-                <input
-                  type="text"
-                  id="fullname"
-                  value={newUser.user_fullname}
-                  onChange={onChangeInput}
-                  className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-sm font-medium">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  value={newUser.user_email}
-                  onChange={onChangeInput}
-                  className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="phone" className="block text-sm font-medium">Phone</label>
-                <input
-                  type="text"
-                  id="phone"
-                  value={newUser.user_phone}
-                  onChange={onChangeInput}
-                  className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
-                />
-              </div>
-              <div className="flex justify-between">
-                <button type="button" onClick={() => handleDialogUpdate('close')} className="bg-gray-500 text-white py-1 px-3 rounded-lg text-sm">Close</button>
-                <button type="submit" className="bg-blue-500 text-white py-1 px-3 rounded-lg text-sm">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )
-      }
+        <UpdateUserForm user={FetchUser} onClose={() => handleDialogUpdate(updateUser[0].user_id, 'close')} />
+      )}
     </div >
   );
 };

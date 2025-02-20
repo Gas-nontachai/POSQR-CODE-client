@@ -14,8 +14,6 @@ export const useUser = () => {
                 data: method === 'POST' ? payload : undefined,
             };
 
-            console.log("payload", method, payload);
-
             const response = await axios(config);
             return response.data;
         } catch (err: any) {
