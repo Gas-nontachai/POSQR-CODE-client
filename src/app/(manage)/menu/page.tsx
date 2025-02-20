@@ -129,7 +129,7 @@ const MenuPage = () => {
         </div>
         <div className="mb-4">
           <label htmlFor="category_id" className="block text-sm font-medium text-gray-700">Category</label>
-          <select
+          {/* <select
             name="category_id"
             id="category_id"
             value={menu.category_id}
@@ -143,7 +143,7 @@ const MenuPage = () => {
                 {item.category_name}
               </option>
             ))}
-          </select>
+          </select> */}
         </div>
         <div className="mb-4">
           <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image URL</label>
@@ -167,7 +167,7 @@ const MenuPage = () => {
       </form>
 
       <h2 className="text-2xl font-semibold text-center mt-6">Menu List</h2>
-      <ul className="mt-4">
+      {/* <ul className="mt-4">
         {menus.map((menuItem: any) => (
           <li key={menuItem.menu_id} className="mb-2 p-4 bg-gray-100 rounded-md shadow-sm">
             <h3 className="text-lg font-medium">{menuItem.menu_name}</h3>
@@ -191,7 +191,7 @@ const MenuPage = () => {
             </div>
           </li>
         ))}
-      </ul>
+      </ul> */}
     </div>
   );
 };

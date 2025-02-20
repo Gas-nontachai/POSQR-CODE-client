@@ -4,6 +4,7 @@ import { useUser } from "@/hooks/useUser";
 import { User } from "@/types/user";
 import Swal from "sweetalert2";
 import UpdateUserForm from "@/components/User/UpdateUserForm";
+import AddRoleForm from "@/components/User/AddRoleForm";
 
 const ManageUserPage: React.FC = () => {
 
@@ -33,6 +34,7 @@ const ManageUserPage: React.FC = () => {
     user_img: ""
   }]);
   const [showModal, setShowModal] = useState(false)
+  const [showModalRole, setShowModalRole] = useState(false)
 
   useEffect(() => {
     fetchData();
@@ -124,6 +126,9 @@ const ManageUserPage: React.FC = () => {
       <h1 className="bg-blue-600 text-white text-center p-4 rounded-md text-2xl font-bold">
         จัดการ User
       </h1>
+      <div className="mt-2 flex justify-end">
+        <button onClick={(e) => setShowModalRole(true)} className="bg-green-500 text-white px-2 py-1 rounded-md hover:bg-green-600">Add Role</button>
+      </div>
       <form onSubmit={onSubmit}>
         <div className="flex flex-col gap-2 mt-5">
           <input
@@ -170,11 +175,7 @@ const ManageUserPage: React.FC = () => {
             placeholder="รูปภาพ"
             className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <button
-            className="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600"
-          >
-            ➕ เพิ่ม
-          </button>
+          <button className="bg-green-500 text-white px-5 py-2 rounded-md hover:bg-green-600">เพิ่ม</button>
         </div>
       </form>
       <table className="min-w-full table-auto mt-5">
@@ -215,6 +216,10 @@ const ManageUserPage: React.FC = () => {
 
       {showModal && (
         <UpdateUserForm user={FetchUser} onClose={() => handleDialogUpdate(updateUser[0].user_id, 'close')} />
+      )}
+
+      {showModalRole && (
+        <AddRoleForm onClose={() => setShowModalRole(false)} />
       )}
     </div >
   );

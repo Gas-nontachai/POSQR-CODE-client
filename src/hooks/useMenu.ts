@@ -1,40 +1,29 @@
 "use client";
-
-import { useState } from "react";
-import { Menu } from "@/types/menu";
 import axios from "axios";
-
-const API_URL = "http://localhost:5120/Menu";
+import { Menu } from "@/types/menu";
+import { API_URL } from "@/utils/config";
 
 export const useMenu = () => {
-    const [data, setData] = useState<any>(null);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
-
     const fetchData = async (endpoint: string, payload: any = {}) => {
-        setLoading(true);
-        setError(null);
         try {
-            const response = await axios.post(`${API_URL}${endpoint}`, payload);
-            setData(response.data);
+            const method = 'POST'
+            const config = {
+                method,
+                url: `${API_URL}/menu${endpoint}`,
+                data: method === 'POST' ? payload : undefined,
+            };
+            const response = await axios(config);
             return response.data;
         } catch (err: any) {
-            setError(err.response?.data?.message || "เกิดข้อผิดพลาดในการดึงข้อมูล");
             return null;
-        } finally {
-            setLoading(false);
         }
     };
-
     return {
-        data,
-        loading,
-        error,
         generateMenuID: (): Promise<string> => fetchData("/generateMenuID"),
-        getMenuBy: (): Promise<any> => fetchData("/getMenuBy"),
-        getMenuByID: (menu_id: string): Promise<any> => fetchData("/getMenuByID", { menu_id }),
-        updateMenuBy: (data: Menu): Promise<any> => fetchData("/updateMenuBy", data),
+        getMenuBy: (): Promise<Menu> => fetchData("/getMenuBy"),
+        getMenuByID: (data: { menu_id: string }): Promise<{ menu_id: string }> => fetchData("/getMenuByID", data),
+        updateMenuBy: (data: Menu): Promise<Menu> => fetchData("/updateMenuBy", data),
         insertMenu: (data: Menu): Promise<Menu> => fetchData("/insertMenu", data),
-        deleteMenuBy: (menu_id: string): Promise<any> => fetchData("/deleteMenuBy", { menu_id }),
+        deleteMenuBy: (data: { menu_id: string }): Promise<{ menu_id: string }> => fetchData("/deleteMenuBy", data),
     };
 };
