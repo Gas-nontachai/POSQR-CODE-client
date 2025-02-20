@@ -1,29 +1,32 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { useTable } from "@/hooks/useTable";
+import { useTableStatus } from "@/hooks/useTableStatus";
 import { Table } from "@/types/table";
 import Swal from "sweetalert2";
 import AddTableForm from "@/components/Table/AddTableForm";
 import UpdateTableForm from "@/components/Table/UpdateTableForm";
 import { motion } from "framer-motion";
+import QRCodeGenerator from '@/utils/qrcode-generater';
 
 const ManageTablePage = () => {
   const { getTableBy, insertTable, updateTableBy, deleteTableBy } = useTable();
+  const { getTableStatusBy } = useTableStatus();
   const [newTable, setNewTable] = useState<Table[]>([{
     table_id: '',
     table_number: '',
-    qrcode: '',
     table_status: '',
     add_date: new Date()
   }]);
 
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [openQRCodeDialog, setOpenQRCodeDialog] = useState(false);
   const [loading, SetLoading] = useState<boolean>(true)
+  const current_link = useRef('')
   const tableToUpdate = useRef<Table>({
     table_id: '',
     table_number: '',
-    qrcode: '',
     table_status: '',
     add_date: ''
   })
@@ -35,21 +38,20 @@ const ManageTablePage = () => {
     { text: "Action", },
   ]
 
-  const statusItems = [
-    { value: "available", title: "ว่าง" },
-    { value: "occupied", title: "มีผู้ใช้งาน" },
-    { value: "reserved", title: "จองแล้ว" },
-    { value: "pending", title: "กำลังรอการยืนยัน" },
-    { value: "confirmed", title: "ยืนยันการจองแล้ว" },
-    { value: "cancelled", title: "ยกเลิกการจอง" },
-    { value: "no_show", title: "ลูกค้าไม่มา" },
-    { value: "in_use", title: "กำลังถูกใช้งาน" },
-    { value: "closed", title: "ปิดการใช้งาน" },
-  ];
+  const statusItems = useRef<{ value: string; title: string }[]>([]);
 
   useEffect(() => {
+    fetchTableStatusOption()
     fetchData();
   }, []);
+
+  const fetchTableStatusOption = async () => {
+    const res = await getTableStatusBy();
+    statusItems.current = res.map((item: any) => ({
+      value: item.table_status_id,
+      title: item.table_status_name,
+    }))
+  }
 
   const fetchData = async () => {
     try {
@@ -61,6 +63,7 @@ const ManageTablePage = () => {
       SetLoading(false)
       setOpenUpdateDialog(false)
       setOpenAddDialog(false)
+      setOpenQRCodeDialog(false)
     }
   };
 
@@ -112,9 +115,8 @@ const ManageTablePage = () => {
     tableToUpdate.current = newTable.find(table => table.table_id === table_id) || {
       table_id: '',
       table_number: '',
-      qrcode: '',
       table_status: '',
-      add_date: new Date()
+      add_date: '',
     };
     if (tableToUpdate) {
       setOpenUpdateDialog(true);
@@ -175,9 +177,17 @@ const ManageTablePage = () => {
             <tbody>
               {!loading && newTable.map((item) => (
                 <tr key={item.table_id} className="border-b">
-                  <td className="px-4 py-2">{item.table_number}</td>
+                  <td className="px-4 py-2">โต๊ะ {item.table_number}</td>
                   <td className="px-4 py-2">{item.table_status}</td>
-                  <td className="px-4 py-2">{item.qrcode}</td>
+                  <td>
+                    <button onClick={() => {
+                      current_link.current = `https://www.google.com/search?q=${item.table_number}`;
+                      setOpenQRCodeDialog(!openQRCodeDialog);
+                    }
+                    } className="bg-green-400 hover:bg-green-500 text-white font-bold py-2 px-4 rounded">
+                      QR Code Gen
+                    </button>
+                  </td>
                   <td className="px-4 py-2">
                     <div className="flex gap-2">
                       <button onClick={() => openDialogUpdate(item.table_id)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded">
@@ -208,7 +218,7 @@ const ManageTablePage = () => {
               <button onClick={() => setOpenAddDialog(false)}
                 className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
               > X </button>
-              <AddTableForm count_table={newTable.length} statusItems={statusItems} onSubmit={onSubmit} />
+              <AddTableForm count_table={newTable.length} statusItems={statusItems.current} onSubmit={onSubmit} />
             </div>
           </div>
         </motion.div>
@@ -228,12 +238,33 @@ const ManageTablePage = () => {
               <button onClick={() => setOpenUpdateDialog(false)}
                 className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
               > X </button>
-              <UpdateTableForm table_data={tableToUpdate.current} statusItems={statusItems} onSubmit={onUpdate} />
+              <UpdateTableForm table_data={tableToUpdate.current} statusItems={statusItems.current} onSubmit={onUpdate} />
             </div>
           </div>
         </motion.div>
       )}
 
+      {openQRCodeDialog && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 10 }}
+          transition={{ duration: 0.1 }}
+          className="my-box"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenQRCodeDialog(false)} >
+            <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
+              <button onClick={() => setOpenQRCodeDialog(false)}
+                className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
+              > X </button>
+              <div className="flex justify-center items-center flex-col">
+                <QRCodeGenerator link={current_link.current} size={500} />
+                <a href={current_link.current} target="_blank" rel="noopener noreferrer" className="mt-5">{current_link.current}</a>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div >
   );
 };

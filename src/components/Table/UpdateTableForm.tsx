@@ -11,7 +11,6 @@ const UpdateTableForm: React.FC<UpdateTableFormProps> = ({ table_data, statusIte
   const [TableData, setTableData] = useState<Table>({
     table_id: "",
     table_number: "",
-    qrcode: "",
     table_status: "",
     add_date: ""
   });

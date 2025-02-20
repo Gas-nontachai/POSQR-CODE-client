@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useCategory } from "@/hooks/useCategory";
-import { Category } from "@/types/category";
+import { useTableStatus } from "@/hooks/useTableStatus";
+import { TableStatus } from "@/types/table-status";
 import Swal from "sweetalert2";
 
-const ManageCategoryPage: React.FC = () => {
+const ManageTableStatusPage: React.FC = () => {
 
-    const { getCategoryBy, insertCategory, deleteCategoryBy, updateCategoryBy } = useCategory();
+    const { getTableStatusBy, insertTableStatus, deleteTableStatusBy, updateTableStatusBy } = useTableStatus();
 
-    const [newCategory, setNewCategory] = useState<Category>({
-        category_id: "",
-        category_name: "",
+    const [newTableStatus, setNewTableStatus] = useState<TableStatus>({
+        table_status_id: "",
+        table_status_name: "",
     });
-    const [FetchCate, setFetchCate] = useState<Category[]>([])
+    const [FetchCate, setFetchCate] = useState<TableStatus[]>([])
     const [loading, setLoading] = useState(Boolean)
 
     useEffect(() => {
@@ -22,35 +22,35 @@ const ManageCategoryPage: React.FC = () => {
 
     const fetchData = async () => {
         setLoading(true);
-        const res = await getCategoryBy();
+        const res = await getTableStatusBy();
         setLoading(false);
         setFetchCate(Array.isArray(res) ? res : [res])
     };
 
     const onChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewCategory({ ...newCategory, category_name: e.target.value });
+        setNewTableStatus({ ...newTableStatus, table_status_name: e.target.value });
     };
 
     const onSubmit = async () => {
-        if (!newCategory.category_name.trim()) {
-            Swal.fire("Error", "กรุณากรอกชื่อ Category", "warning");
+        if (!newTableStatus.table_status_name.trim()) {
+            Swal.fire("Error", "กรุณากรอกชื่อ TableStatus", "warning");
             return;
         }
         try {
-            const category = { ...newCategory };
-            await insertCategory(category);
-            Swal.fire("สำเร็จ", "เพิ่มหมวดหมู่เรียบร้อย", "success");
-            setNewCategory({ category_id: "", category_name: "" });
+            const TableStatus = { ...newTableStatus };
+            await insertTableStatus(TableStatus);
+            Swal.fire("สำเร็จ", "เพิ่มสถานะเรียบร้อย", "success");
+            setNewTableStatus({ table_status_id: "", table_status_name: "" });
             await fetchData()
         } catch (error) {
             console.error(error);
         }
     };
 
-    const onDelete = async (category_id: string) => {
+    const onDelete = async (table_status_id: string) => {
         Swal.fire({
             title: "ยืนยันการลบ?",
-            text: "คุณแน่ใจหรือไม่ว่าต้องการลบหมวดหมู่นี้?",
+            text: "คุณแน่ใจหรือไม่ว่าต้องการลบสถานะนี้?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
@@ -58,33 +58,33 @@ const ManageCategoryPage: React.FC = () => {
             confirmButtonText: "ใช่, ลบเลย!",
         }).then(async (result) => {
             if (result.isConfirmed) {
-                await deleteCategoryBy({ category_id });
-                Swal.fire("Deleted!", "ลบหมวดหมู่เรียบร้อยแล้ว", "success");
+                await deleteTableStatusBy({ table_status_id });
+                Swal.fire("Deleted!", "ลบสถานะเรียบร้อยแล้ว", "success");
                 await fetchData()
             }
         });
     };
 
-    const onUpdate = async (category_id: string) => {
-        const categoryToUpdate = FetchCate.find(category => category.category_id === category_id);
-        if (categoryToUpdate) {
-            const { value: newCategoryName } = await Swal.fire({
-                title: 'แก้ไขหมวดหมู่',
+    const onUpdate = async (table_status_id: string) => {
+        const TableStatusToUpdate = FetchCate.find(TableStatus => TableStatus.table_status_id === table_status_id);
+        if (TableStatusToUpdate) {
+            const { value: newTableStatusName } = await Swal.fire({
+                title: 'แก้ไขสถานะ',
                 input: 'text',
-                inputLabel: 'ชื่อหมวดหมู่ใหม่',
-                inputValue: categoryToUpdate.category_name,
+                inputLabel: 'ชื่อสถานะใหม่',
+                inputValue: TableStatusToUpdate.table_status_name,
                 showCancelButton: true,
                 inputValidator: (value) => {
                     if (!value) {
-                        return 'กรุณากรอกชื่อหมวดหมู่';
+                        return 'กรุณากรอกชื่อสถานะ';
                     }
                 }
             });
 
-            if (newCategoryName) {
-                const updatedCategory = { ...categoryToUpdate, category_name: newCategoryName };
-                await updateCategoryBy(updatedCategory);
-                Swal.fire('สำเร็จ', 'แก้ไขหมวดหมู่เรียบร้อย', 'success');
+            if (newTableStatusName) {
+                const updatedTableStatus = { ...TableStatusToUpdate, table_status_name: newTableStatusName };
+                await updateTableStatusBy(updatedTableStatus);
+                Swal.fire('สำเร็จ', 'แก้ไขสถานะเรียบร้อย', 'success');
                 await fetchData();
             }
         }
@@ -93,16 +93,16 @@ const ManageCategoryPage: React.FC = () => {
     return (
         <div className="container mx-auto my-10 p-5 max-w-3xl bg-white shadow-lg rounded-lg">
             <h1 className="bg-blue-600 text-white text-center p-4 rounded-md text-2xl font-bold">
-                จัดการหมวดหมู่
+                จัดการสถานะ
             </h1>
 
             <div className="flex gap-3 mt-5">
                 <input
                     type="text"
-                    name="category_name"
-                    value={newCategory.category_name}
+                    name="table_status_name"
+                    value={newTableStatus.table_status_name}
                     onChange={onChangeInput}
-                    placeholder="เพิ่มหมวดหมู่ใหม่"
+                    placeholder="เพิ่มสถานะใหม่"
                     className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
@@ -114,25 +114,25 @@ const ManageCategoryPage: React.FC = () => {
             </div>
 
             <div className="mt-5">
-                <h2 className="text-lg font-semibold mb-2">รายการหมวดหมู่</h2>
+                <h2 className="text-lg font-semibold mb-2">รายการสถานะ</h2>
                 <div className="bg-gray-100 p-3 rounded-md">
                     {loading && <p>🔄 กำลังโหลดข้อมูล...</p>}
                     {FetchCate.length > 0 ? (
                         <ul>
                             {FetchCate.map((item) => (
                                 <li
-                                    key={item.category_id}
+                                    key={item.table_status_id}
                                     className="flex justify-between items-center bg-white p-2 rounded-md mb-2 shadow"
                                 >
-                                    <span className="text-gray-700">{item.category_name}</span>
+                                    <span className="text-gray-700">{item.table_status_name}</span>
                                     <div className="flex gap-2">
                                         <button
-                                            onClick={() => onDelete(item.category_id)}
+                                            onClick={() => onDelete(item.table_status_id)}
                                             className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
                                         >ลบ
                                         </button>
                                         <button
-                                            onClick={() => onUpdate(item.category_id)}
+                                            onClick={() => onUpdate(item.table_status_id)}
                                             className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
                                         >
                                             แก้ไข
@@ -142,7 +142,7 @@ const ManageCategoryPage: React.FC = () => {
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-gray-500 text-center">ไม่มีหมวดหมู่</p>
+                        <p className="text-gray-500 text-center">ไม่มีสถานะ</p>
                     )}
                 </div>
             </div>
@@ -150,4 +150,4 @@ const ManageCategoryPage: React.FC = () => {
     );
 };
 
-export default ManageCategoryPage;
+export default ManageTableStatusPage;

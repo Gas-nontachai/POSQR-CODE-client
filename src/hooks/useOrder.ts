@@ -20,7 +20,7 @@ export const useOrder = () => {
     };
     return {
         generateOrderID: (): Promise<string> => fetchData("/generateOrderID"),
-        getOrderBy: (): Promise<Order> => fetchData("/getOrderBy"),
+        getOrderBy: (): Promise<Order[]> => fetchData("/getOrderBy"),
         getOrderByID: (data: { order_id: string }): Promise<{ order_id: string }> => fetchData("/getOrderByID", data),
         updateOrderBy: (data: Order): Promise<Order> => fetchData("/updateOrderBy", data),
         insertOrder: (data: Order): Promise<Order> => fetchData("/insertOrder", data),
