@@ -20,7 +20,7 @@ export const useTable = () => {
     };
     return {
         generateTableID: (): Promise<string> => fetchData("/generateTableID"),
-        getTableBy: (): Promise<Table> => fetchData("/getTableBy"),
+        getTableBy: (): Promise<Table[]> => fetchData("/getTableBy"),
         getTableByID: (data: { table_id: string }): Promise<Table> => fetchData("/getTableByID", data),
         updateTableBy: (data: Table): Promise<Table> => fetchData("/updateTableBy", data),
         insertTable: (data: Table): Promise<Table> => fetchData("/insertTable", data),

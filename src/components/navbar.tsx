@@ -19,11 +19,12 @@ const Navbar: React.FC = () => {
 
     const manageItems = [
         { name: "Category", path: "/category", icon: Squares2X2Icon },
+        { name: "Status", path: "/table-status", icon: ClipboardDocumentListIcon },
         { name: "Menu", path: "/menu", icon: ClipboardDocumentListIcon },
         { name: "Orders", path: "/order", icon: ShoppingCartIcon },
         { name: "Table", path: "/table", icon: TableCellsIcon },
         { name: "User", path: "/user", icon: UserIcon },
-    ]
+    ];
 
     return (
         <nav className="bg-gray-800 p-4">

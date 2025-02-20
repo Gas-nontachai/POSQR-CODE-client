@@ -1,6 +1,5 @@
 "use client";
 import axios from "axios";
-import { useState } from "react";
 import { Category } from "@/types/category";
 import { API_URL } from "@/utils/config";
 
@@ -18,7 +17,7 @@ export const useCategory = () => {
 
     return {
         generateCategoryID: (): Promise<string> => fetchData("/generateCategoryID"),
-        getCategoryBy: (): Promise<Category> => fetchData("/getCategoryBy"),
+        getCategoryBy: (): Promise<Category[]> => fetchData("/getCategoryBy"),
         getCategoryByID: (data: { category_id: string }): Promise<{ category_id: string }> => fetchData("/getCategoryByID", data),
         updateCategoryBy: (data: Category): Promise<Category> => fetchData("/updateCategoryBy", data),
         insertCategory: (data: Category): Promise<Category> => fetchData("/insertCategory", data),

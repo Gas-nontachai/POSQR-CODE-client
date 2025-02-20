@@ -11,7 +11,6 @@ const AddTableForm: React.FC<AddTableFormProps> = ({ count_table, statusItems, o
     const [TableData, setTableData] = useState<Table>({
         table_id: "",
         table_number: "",
-        qrcode: "",
         table_status: "available",
         add_date: ""
     });
