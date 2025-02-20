@@ -1,119 +1,197 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
-import { User } from "@/types/user";
-import { useUser } from "@/hooks/useUser";
+import React, { useEffect, useState } from "react"
+import { useUser } from "@/hooks/useUser"
+import { User } from "@/types/user"
+import { UserRole } from "@/types/user-role"
 import Swal from "sweetalert2";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface UpdateUserFormProps {
-    user: User[];
-    onClose: () => void;
+    onClose: () => void,
+    user_id: string
 }
 
-const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user, onClose }) => {
-
-    console.log(user);
-
-
-    const [updatedUser, setUpdatedUser] = useState<User | null>(null);
+const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ onClose, user_id }) => {
+    const { getUserByID, updateUserBy } = useUser()
+    const { getUserRoleBy } = useUserRole()
+    const [showPassword, setShowPassword] = useState(false);
+    const [formData, setFormData] = useState<User>({
+        user_id: "",
+        user_fullname: "",
+        user_email: "",
+        user_phone: "",
+        user_password: "",
+        user_img: "",
+        user_role_id: "",
+        add_date: ""
+    });
+    const [userRole, setUserRole] = useState<UserRole[]>([]);
 
     useEffect(() => {
-        if (user.length > 0) {
-            setUpdatedUser(user[0]);
-        }
-    }, [user]);
+        fetchUser()
+        fetchUserRole()
+    }, [])
 
-    const { getUserBy, updateUserBy } = useUser();
+    const fetchUser = async () => {
+        const res = await getUserByID({ user_id });
+        setFormData(res);
+    }
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (updatedUser) {
-            const { name, value } = e.target;
-            setUpdatedUser({
-                ...updatedUser,
-                [name]: value
+    const fetchUserRole = async () => {
+        const res = await getUserRoleBy();
+        setUserRole(Array.isArray(res) ? res : [res])
+    };
+    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const onSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await updateUserBy(formData);
+            Swal.fire({
+                title: "User updated successfully!",
+                icon: "success",
+                toast: true,
+                position: "top-end",
+                timer: 3000,
+                showConfirmButton: false
+            });
+            onClose()
+        } catch (error) {
+            console.log(error);
+            Swal.fire({
+                title: "An error occurred!",
+                icon: "error",
+                toast: true,
+                position: "top-end",
+                timer: 3000,
+                showConfirmButton: false
             });
         }
     };
 
-    const onUpdate = async () => {
-        if (updatedUser) {
-            try {
-                await updateUserBy(updatedUser);
-                Swal.fire({
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'User updated successfully',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    toast: true
-                });
-                await getUserBy();
-                onClose();
-            } catch (error) {
-                console.error("Error updating user:", error);
-                Swal.fire({
-                    position: 'top-end',
-                    icon: 'error',
-                    title: 'Failed to update user',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
-        }
-    };
-
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
-            <div className="bg-white rounded-lg p-6 w-96 relative">
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="bg-red-500 hover:bg-red-700 text-white py-1 px-3 rounded-lg text-sm absolute top-3 right-3"
-                >
-                    X
-                </button>
-                <h2 className="text-xl font-semibold mb-4">Update User</h2>
-                {updatedUser && (
-                    <form onSubmit={(e) => { e.preventDefault(); onUpdate(); }}>
-                        <div className="mb-4">
-                            <label htmlFor="fullname" className="block text-sm font-medium">Full Name</label>
-                            <input
-                                type="text"
-                                id="fullname"
-                                name="user_fullname"
-                                value={updatedUser.user_fullname}
-                                onChange={handleChange}
-                                className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label htmlFor="email" className="block text-sm font-medium">Email</label>
-                            <input
-                                type="text"
-                                id="email"
-                                name="user_email"
-                                value={updatedUser.user_email}
-                                onChange={handleChange}
-                                className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
-                            />
-                        </div>
-                        <div className="mb-4">
-                            <label htmlFor="phone" className="block text-sm font-medium">Phone</label>
-                            <input
-                                type="text"
-                                id="phone"
-                                name="user_phone"
-                                value={updatedUser.user_phone}
-                                onChange={handleChange}
-                                className="mt-1 p-2 border border-gray-300 rounded-lg w-full"
-                            />
-                        </div>
-                        <div className="flex justify-center">
-                            <button type="submit" className="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-lg text-sm">Save</button>
-                        </div>
-                    </form>
-                )}
-            </div>
-        </div>
-    );
-};
+        <>
+            <h2 className="text-xl mb-4">Update User</h2>
+            <form onSubmit={onSubmit}>
+                <div className="mb-4">
+                    <label htmlFor="user_fullname" className="block text-sm font-medium text-gray-700">
+                        Full Name
+                    </label>
+                    <input
+                        type="text"
+                        name="user_fullname"
+                        value={formData.user_fullname}
+                        onChange={onChange}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                        required
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="user_email" className="block text-sm font-medium text-gray-700">
+                        Email
+                    </label>
+                    <input
+                        type="email"
+                        name="user_email"
+                        value={formData.user_email}
+                        onChange={onChange}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                        required
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="user_phone" className="block text-sm font-medium text-gray-700">
+                        Phone
+                    </label>
+                    <input
+                        type="text"
+                        name="user_phone"
+                        value={formData.user_phone}
+                        onChange={onChange}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                        required
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="user_password" className="block text-sm font-medium text-gray-700">
+                        Password
+                    </label>
+                    <div className="relative">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            name="user_password"
+                            value={formData.user_password}
+                            onChange={onChange}
+                            className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-2 top-2 text-gray-500"
+                        >
+                            {showPassword ? "Hide" : "Show"}
+                        </button>
+                    </div>
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="user_img" className="block text-sm font-medium text-gray-700">
+                        Image
+                    </label>
+                    <input
+                        type="file"
+                        name="user_img"
+                        onChange={onChange}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="user_role_id" className="block text-sm font-medium text-gray-700">
+                        User Role
+                    </label>
+                    <select
+                        name="user_role_id"
+                        value={formData.user_role_id}
+                        onChange={onChange}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                        required
+                    >
+                        {userRole.map((role) => (
+                            <option key={role.user_role_id} value={role.user_role_id}>
+                                {role.user_role_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="flex justify-center">
+                    <button
+                        type="submit"
+                        className="bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 rounded flex items-center"
+                    >
+                        <svg
+                            className="w-5 h-5 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M5 13l4 4L19 7"
+                            ></path>
+                        </svg>
+                        Update User
+                    </button>
+                </div>
+            </form>
+        </>
+    )
+}
 
-export default UpdateUserForm;
+export default UpdateUserForm

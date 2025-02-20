@@ -4,7 +4,7 @@ import { User } from "@/types/user";
 import { API_URL } from "@/utils/config";
 
 export const useUser = () => {
-
+    
     const fetchData = async (endpoint: string, payload: any = {}) => {
         try {
             const method = 'POST'

@@ -1,31 +1,72 @@
-import React, { useState } from "react";
+import { useUser } from "@/hooks/useUser";
+import { useUserRole } from "@/hooks/useUserRole";
+import { UserRole } from "@/types/user-role"
+import { User } from "@/types/user"
+import Swal from "sweetalert2";
+import React, { useEffect, useState } from "react";
 
-const AddUserForm = () => {
-    const [formData, setFormData] = useState({
+interface AddUserFormProps {
+    onClose: () => void;
+}
+
+const AddUserForm: React.FC<AddUserFormProps> = ({ onClose }) => {
+    const { insertUser } = useUser()
+    const { getUserRoleBy } = useUserRole()
+
+    const [formData, setFormData] = useState<User>({
+        user_id: "",
         user_fullname: "",
         user_email: "",
         user_phone: "",
+        user_password: "",
         user_img: "",
+        user_role_id: "",
+        add_date: ""
     });
+    const [userRole, setUserRole] = useState<UserRole[]>([]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    useEffect(() => {
+        fetchUserRole();
+    }, []);
+
+    const fetchUserRole = async () => {
+        try {
+            const res = await getUserRoleBy();
+            setUserRole(Array.isArray(res) ? res : [res])
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission (e.g., call an API to add the user)
-        console.log("User added:", formData);
-        // closeDialog(); // Close the dialog after submission
+        try {
+            await insertUser(formData);
+            Swal.fire({
+                title: "User added successfully!",
+                icon: "success",
+                toast: true,
+                position: "top-end",
+                timer: 3000,
+                showConfirmButton: false
+            });
+            onClose()
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (
         <>
             <h2 className="text-xl mb-4">Add New User</h2>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={onSubmit}>
                 <div className="mb-4">
                     <label htmlFor="user_fullname" className="block text-sm font-medium text-gray-700">
                         Full Name
@@ -34,7 +75,7 @@ const AddUserForm = () => {
                         type="text"
                         name="user_fullname"
                         value={formData.user_fullname}
-                        onChange={handleChange}
+                        onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
                     />
@@ -47,7 +88,7 @@ const AddUserForm = () => {
                         type="email"
                         name="user_email"
                         value={formData.user_email}
-                        onChange={handleChange}
+                        onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
                     />
@@ -60,7 +101,20 @@ const AddUserForm = () => {
                         type="text"
                         name="user_phone"
                         value={formData.user_phone}
-                        onChange={handleChange}
+                        onChange={onChange}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                        required
+                    />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="user_password" className="block text-sm font-medium text-gray-700">
+                        Password
+                    </label>
+                    <input
+                        type="text"
+                        name="user_password"
+                        value={formData.user_password}
+                        onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
                     />
@@ -73,9 +127,27 @@ const AddUserForm = () => {
                         type="file"
                         name="user_img"
                         value={formData.user_img}
-                        onChange={handleChange}
+                        onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                     />
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="user_role" className="block text-sm font-medium text-gray-700">
+                        User Role
+                    </label>
+                    <select
+                        name="user_role_id"
+                        value={formData.user_role_id}
+                        onChange={onChange}
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded"
+                        required
+                    >
+                        {userRole.map((role) => (
+                            <option key={role.user_role_id} value={role.user_role_id}>
+                                {role.user_role_name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 <div className="flex justify-end">
                     <button

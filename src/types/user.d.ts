@@ -5,5 +5,6 @@ export type User = {
     user_phone: string,
     user_password: string,
     user_img?: string,
-    add_date?: Date
+    user_role_id: string,
+    add_date?: Date | string
 }
