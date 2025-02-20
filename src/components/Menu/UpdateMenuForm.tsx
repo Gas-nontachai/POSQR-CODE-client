@@ -23,7 +23,6 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
         category_id: ''
     });
 
-
     useEffect(() => {
         fetchMenuData()
         fetchCategory()

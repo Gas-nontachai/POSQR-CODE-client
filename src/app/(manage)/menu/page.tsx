@@ -7,7 +7,6 @@ import { useMenu } from '@/hooks/useMenu';
 import { useCategory } from '@/hooks/useCategory';
 import { motion } from "framer-motion";
 import UpdateMenuForm from '@/components/Menu/UpdateMenuForm';
-import { ul } from 'motion/react-client';
 
 const { getCategoryBy } = useCategory();
 
@@ -37,9 +36,7 @@ const MenuPage = () => {
 
   const fetchDataMenu = async () => {
     const res = await getMenuBy()
-    console.log(res);
-    
-    // setMenus(Array.isArray(res) ? res : [res])
+    setMenus(Array.isArray(res) ? res : [res])
   }
 
   const fetchDataCategory = async () => {
@@ -171,12 +168,28 @@ const MenuPage = () => {
       </form>
       <h2 className="text-2xl font-semibold text-center mt-6">Menu List</h2>
       <ul className="mt-4">
-        {menus.map((item:any) => (
-          <ul>
-            <li></li>
-          </ul>
+        {menus.map((item: Menu) => (
+          <li key={item.menu_id} className="mb-2 p-4 bg-gray-100 rounded-md shadow-sm">
+            <h3 className="text-lg font-medium">{item.menu_name}</h3>
+            <p>Price: B{item.menu_price}</p>
+            <p>Category: {category.find(cat => cat.category_id === item.category_id)?.category_name}</p>
+            {item.menu_img && <img src={item.menu_img} alt={item.menu_name} className="mt-2 max-w-full h-auto" />}
+            <div className="mt-4 flex justify-between">
+              <button
+                onClick={() => handleEdit(item.menu_id)}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(item.menu_id)}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none"
+              >
+                Delete
+              </button>
+            </div>
+          </li>
         ))}
-
       </ul>
 
       {isUpdateDialogOpen && (
