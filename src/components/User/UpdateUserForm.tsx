@@ -10,6 +10,9 @@ interface UpdateUserFormProps {
 
 const UpdateUserForm: React.FC<UpdateUserFormProps> = ({ user, onClose }) => {
 
+    console.log(user);
+
+
     const [updatedUser, setUpdatedUser] = useState<User | null>(null);
 
     useEffect(() => {
