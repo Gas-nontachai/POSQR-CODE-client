@@ -7,8 +7,6 @@ import Swal from "sweetalert2";
 
 const OrderPage: React.FC = () => {
     const {
-        loading,
-        error,
         generateCategoryID,
         getCategoryByID,
         insertCategory,

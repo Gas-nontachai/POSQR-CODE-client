@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 
 const ManageCategoryPage: React.FC = () => {
 
-    const { generateCategoryID, getCategoryBy, insertCategory, deleteCategoryBy, updateCategoryBy } = useCategory();
+    const { getCategoryBy, insertCategory, deleteCategoryBy, updateCategoryBy } = useCategory();
 
     const [newCategory, setNewCategory] = useState<Category>({
         category_id: "",
@@ -26,7 +26,7 @@ const ManageCategoryPage: React.FC = () => {
 
         setTimeout(() => {
             setLoading(false);
-            setFetchCate(res);
+            setFetchCate(Array.isArray(res) ? res : [res]);
         }, 1000);
     };
 
@@ -62,7 +62,7 @@ const ManageCategoryPage: React.FC = () => {
             confirmButtonText: "ใช่, ลบเลย!",
         }).then(async (result) => {
             if (result.isConfirmed) {
-                await deleteCategoryBy(category_id);
+                await deleteCategoryBy({ category_id });
                 Swal.fire("Deleted!", "ลบหมวดหมู่เรียบร้อยแล้ว", "success");
                 await fetchData()
             }

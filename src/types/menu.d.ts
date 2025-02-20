@@ -1,7 +1,7 @@
 export type Menu = {
     menu_id: string,
     menu_name: string,
-    price: number,
+    menu_price: number,
+    menu_img: string,
     category_id: string,
-    image: string
 }

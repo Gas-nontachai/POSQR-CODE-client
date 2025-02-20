@@ -1,48 +1,50 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Swal from "sweetalert2";
 import { Menu } from "@/types/menu";
 import { Category } from "@/types/category";
 import { useMenu } from '@/hooks/useMenu';
 import { useCategory } from '@/hooks/useCategory';
+import { motion } from "framer-motion";
+import UpdateMenuForm from '@/components/Menu/UpdateMenuForm';
+import { ul } from 'motion/react-client';
+
+const { getCategoryBy } = useCategory();
 
 const MenuPage = () => {
   const {
     insertMenu,
     deleteMenuBy,
-    getMenuByID,
     getMenuBy,
   } = useMenu();
-  const { getCategoryBy } = useCategory();
-  const [menus, setMenus] = useState<[]>([])
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const ref_menu_id = useRef('')
   const [menu, setMenu] = useState<Menu>({
     menu_id: '',
     menu_name: '',
-    price: 0,
-    category_id: '',
-    image: '',
+    menu_price: 0,
+    menu_img: '',
+    category_id: ''
   });
 
+  const [menus, setMenus] = useState<Menu[]>([])
   const [category, setCategory] = useState<Category[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      await fetchDataCategory();
-      await fetchDataMenu();
-    };
-
-
-    fetchData();
+    fetchDataCategory();
+    fetchDataMenu();
   }, []);
 
   const fetchDataMenu = async () => {
     const res = await getMenuBy()
-    setMenus(res)
+    console.log(res);
+    
+    // setMenus(Array.isArray(res) ? res : [res])
   }
 
   const fetchDataCategory = async () => {
     const res = await getCategoryBy()
-    setCategory(res)
+    setCategory(Array.isArray(res) ? res : [res])
   }
 
   const handleChange = (e: any) => {
@@ -58,13 +60,12 @@ const MenuPage = () => {
     try {
       await insertMenu(menu);
       Swal.fire("Success", "Menu inserted successfully", "success");
-
       setMenu({
         menu_id: '',
         menu_name: '',
-        price: 0,
+        menu_price: 0,
+        menu_img: '',
         category_id: '',
-        image: '',
       });
     } catch (error) {
       console.error(error);
@@ -72,11 +73,16 @@ const MenuPage = () => {
     }
   };
 
-  const handleEdit = (menuId: string) => {
-    console.log('Editing menu with ID:', menuId);
+  const handleEdit = (menu_id: string) => {
+    try {
+      setIsUpdateDialogOpen(true)
+      ref_menu_id.current = menu_id
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const handleDelete = async (menuId: string) => {
+  const handleDelete = async (menu_id: string) => {
     const confirmation = await Swal.fire({
       title: "Are you sure?",
       text: "This menu will be deleted.",
@@ -88,7 +94,7 @@ const MenuPage = () => {
 
     if (confirmation.isConfirmed) {
       try {
-        await deleteMenuBy(menuId);
+        await deleteMenuBy({ menu_id: menu_id });
         Swal.fire("Deleted!", "The menu has been deleted.", "success");
         fetchDataMenu();
       } catch (error) {
@@ -97,8 +103,6 @@ const MenuPage = () => {
       }
     }
   };
-
-
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
@@ -120,16 +124,16 @@ const MenuPage = () => {
           <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price</label>
           <input
             type="number"
-            name="price"
+            name="menu_price"
             id="price"
-            value={menu.price}
+            value={menu.menu_price}
             onChange={handleChange}
             className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
         <div className="mb-4">
           <label htmlFor="category_id" className="block text-sm font-medium text-gray-700">Category</label>
-          {/* <select
+          <select
             name="category_id"
             id="category_id"
             value={menu.category_id}
@@ -143,15 +147,15 @@ const MenuPage = () => {
                 {item.category_name}
               </option>
             ))}
-          </select> */}
+          </select>
         </div>
         <div className="mb-4">
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image URL</label>
+          <label htmlFor="menu_nmenu_imgame" className="block text-sm font-medium text-gray-700">Image URL</label>
           <input
-            type="text"
-            name="image"
-            id="image"
-            value={menu.image}
+            type="file"
+            name="menu_img"
+            id="menu_img"
+            value={menu.menu_img}
             onChange={handleChange}
             className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
@@ -165,33 +169,34 @@ const MenuPage = () => {
           </button>
         </div>
       </form>
-
       <h2 className="text-2xl font-semibold text-center mt-6">Menu List</h2>
-      {/* <ul className="mt-4">
-        {menus.map((menuItem: any) => (
-          <li key={menuItem.menu_id} className="mb-2 p-4 bg-gray-100 rounded-md shadow-sm">
-            <h3 className="text-lg font-medium">{menuItem.menu_name}</h3>
-            <p>Price: ${menuItem.price}</p>
-            <p>Category: {menuItem.category_name}</p>
-            {menuItem.image && <img src={menuItem.image} alt={menuItem.menu_name} className="mt-2 max-w-full h-auto" />}
-
-            <div className="mt-4 flex justify-between">
-              <button
-                onClick={() => handleEdit(menuItem.menu_id)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(menuItem.menu_id)}
-                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none"
-              >
-                Delete
-              </button>
-            </div>
-          </li>
+      <ul className="mt-4">
+        {menus.map((item:any) => (
+          <ul>
+            <li></li>
+          </ul>
         ))}
-      </ul> */}
+
+      </ul>
+
+      {isUpdateDialogOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 10 }}
+          transition={{ duration: 0.1 }}
+          className="my-box"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setIsUpdateDialogOpen(false)} >
+            <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
+              <button onClick={() => setIsUpdateDialogOpen(false)}
+                className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
+              > X </button>
+              <UpdateMenuForm menu_id={ref_menu_id.current} onClose={() => { setIsUpdateDialogOpen(false); fetchDataMenu(); }} />
+            </div >
+          </div >
+        </motion.div>
+      )}
     </div>
   );
 };
