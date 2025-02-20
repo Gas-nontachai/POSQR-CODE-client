@@ -1,35 +1,22 @@
 "use client";
-
+import axios from "axios";
 import { useState } from "react";
 import { Category } from "@/types/category";
-import axios from "axios";
-
-const API_URL = "http://localhost:5120/category";
+import { API_URL } from "@/utils/config";
 
 export const useCategory = () => {
-    const [data, setData] = useState<any>(null);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
 
     const fetchData = async (endpoint: string, payload: any = {}) => {
-        setLoading(true);
-        setError(null);
         try {
-            const response = await axios.post(`${API_URL}${endpoint}`, payload);
-            setData(response.data);
+            const response = await axios.post(`${API_URL}/category${endpoint}`, payload);
             return response.data;
         } catch (err: any) {
-            setError(err.response?.data?.message || "เกิดข้อผิดพลาดในการดึงข้อมูล");
             return null;
         } finally {
-            setLoading(false);
         }
     };
 
     return {
-        data,
-        loading,
-        error,
         generateCategoryID: (): Promise<string> => fetchData("/generateCategoryID"),
         getCategoryBy: (): Promise<any> => fetchData("/getCategoryBy"),
         getCategoryByID: (category_id: string): Promise<any> => fetchData("/getCategoryByID", { category_id }),
