@@ -11,7 +11,7 @@ const AddTableForm: React.FC<AddTableFormProps> = ({ count_table, statusItems, o
     const [TableData, setTableData] = useState<Table>({
         table_id: "",
         table_number: "",
-        table_status: "available",
+        table_status: "",
         add_date: ""
     });
 
@@ -52,8 +52,11 @@ const AddTableForm: React.FC<AddTableFormProps> = ({ count_table, statusItems, o
                         onChange={handleChange}
                         className="border p-2 w-full"
                     >
-                        {statusItems.map(item => (
-                            <option value={item.value} key={item.value}>{item.title}</option>
+                        <option value="" disabled>-- เลือกสถานะโต๊ะ --</option>
+                        {statusItems.map((item) => (
+                            <option value={item.value} key={item.value}>
+                                {item.title}
+                            </option>
                         ))}
                     </select>
                 </div>

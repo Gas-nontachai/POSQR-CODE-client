@@ -3,5 +3,5 @@ export type Menu = {
     menu_name: string,
     menu_price: number,
     menu_img: string,
-    category_id: string,
+    category: string,
 }

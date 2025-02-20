@@ -23,7 +23,7 @@ const MenuPage = () => {
     menu_name: '',
     menu_price: 0,
     menu_img: '',
-    category_id: ''
+    category: ''
   });
 
   const [menus, setMenus] = useState<Menu[]>([])
@@ -35,13 +35,11 @@ const MenuPage = () => {
   }, []);
 
   const fetchDataMenu = async () => {
-    const res = await getMenuBy()
-    setMenus(Array.isArray(res) ? res : [res])
+    setMenus(await getMenuBy())
   }
 
   const fetchDataCategory = async () => {
-    const res = await getCategoryBy()
-    setCategory(Array.isArray(res) ? res : [res])
+    setCategory(await getCategoryBy())
   }
 
   const handleChange = (e: any) => {
@@ -62,8 +60,9 @@ const MenuPage = () => {
         menu_name: '',
         menu_price: 0,
         menu_img: '',
-        category_id: '',
+        category: '',
       });
+      fetchDataMenu()
     } catch (error) {
       console.error(error);
       Swal.fire("Error", "Failed to insert menu", "error");
@@ -129,18 +128,17 @@ const MenuPage = () => {
           />
         </div>
         <div className="mb-4">
-          <label htmlFor="category_id" className="block text-sm font-medium text-gray-700">Category</label>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
           <select
-            name="category_id"
-            id="category_id"
-            value={menu.category_id}
+            name="category"
+            id="category"
+            value={menu.category}
             onChange={handleChange}
-            required
             className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            <option value="">Select Category</option>
-            {category.map((item: any) => (
-              <option key={item.category_id} value={item.category_id}>
+            <option value="" disabled>-- เลือกประเภทอาหาร --</option>
+            {category.map((item) => (
+              <option value={item.category_name} key={item.category_name}>
                 {item.category_name}
               </option>
             ))}
@@ -171,8 +169,8 @@ const MenuPage = () => {
         {menus.map((item: Menu) => (
           <li key={item.menu_id} className="mb-2 p-4 bg-gray-100 rounded-md shadow-sm">
             <h3 className="text-lg font-medium">{item.menu_name}</h3>
-            <p>Price: B{item.menu_price}</p>
-            <p>Category: {category.find(cat => cat.category_id === item.category_id)?.category_name}</p>
+            <p>Price: {item.menu_price} B</p>
+            <p>Category: {item.category}</p>
             {item.menu_img && <img src={item.menu_img} alt={item.menu_name} className="mt-2 max-w-full h-auto" />}
             <div className="mt-4 flex justify-between">
               <button

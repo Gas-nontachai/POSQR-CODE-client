@@ -3,34 +3,31 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTable } from "@/hooks/useTable";
 import { useTableStatus } from "@/hooks/useTableStatus";
 import { Table } from "@/types/table";
+import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import AddTableForm from "@/components/Table/AddTableForm";
 import UpdateTableForm from "@/components/Table/UpdateTableForm";
-import { motion } from "framer-motion";
 import QRCodeGenerator from '@/utils/qrcode-generater';
 
 const ManageTablePage = () => {
   const { getTableBy, insertTable, updateTableBy, deleteTableBy } = useTable();
   const { getTableStatusBy } = useTableStatus();
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [openQRCodeDialog, setOpenQRCodeDialog] = useState(false);
+  const [loading, SetLoading] = useState<boolean>(true)
   const [newTable, setNewTable] = useState<Table[]>([{
     table_id: '',
     table_number: '',
     table_status: '',
     add_date: new Date()
   }]);
-
-  const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
-  const [openQRCodeDialog, setOpenQRCodeDialog] = useState(false);
-  const [loading, SetLoading] = useState<boolean>(true)
-  const current_link = useRef('')
   const tableToUpdate = useRef<Table>({
     table_id: '',
     table_number: '',
     table_status: '',
     add_date: ''
   })
-
   const manageItems = [
     { text: "Table Number", },
     { text: "Status", },
@@ -38,6 +35,7 @@ const ManageTablePage = () => {
     { text: "Action", },
   ]
 
+  const current_link = useRef('')
   const statusItems = useRef<{ value: string; title: string }[]>([]);
 
   useEffect(() => {
@@ -48,15 +46,14 @@ const ManageTablePage = () => {
   const fetchTableStatusOption = async () => {
     const res = await getTableStatusBy();
     statusItems.current = res.map((item: any) => ({
-      value: item.table_status_id,
+      value: item.table_status_name,
       title: item.table_status_name,
     }))
   }
 
   const fetchData = async () => {
     try {
-      const res = await getTableBy();
-      setNewTable(Array.isArray(res) ? res : [res])
+      setNewTable(await getTableBy())
     } catch (error) {
       console.error("Error fetching table data:", error);
     } finally {
