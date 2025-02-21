@@ -15,7 +15,6 @@ const ManageTableStatusPage: React.FC = () => {
     });
     const [FetchCate, setFetchCate] = useState<TableStatus[]>([])
     const [loading, setLoading] = useState(Boolean)
-
     useEffect(() => {
         fetchData()
     }, []);
@@ -39,7 +38,15 @@ const ManageTableStatusPage: React.FC = () => {
         try {
             const TableStatus = { ...newTableStatus };
             await insertTableStatus(TableStatus);
-            Swal.fire("สำเร็จ", "เพิ่มสถานะเรียบร้อย", "success");
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                icon: "success",
+                title: "เพิ่มสถานะเรียบร้อย",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
             setNewTableStatus({ table_status_id: "", table_status_name: "" });
             await fetchData()
         } catch (error) {

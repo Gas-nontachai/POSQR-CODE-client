@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { Menu, MenuItem, Button, Icon } from "@mui/material";
+import { Edit, Delete } from '@mui/icons-material';
 import { useTable } from "@/hooks/useTable";
 import { useTableStatus } from "@/hooks/useTableStatus";
 import { Table } from "@/types/table";
@@ -16,6 +18,12 @@ const ManageTablePage = () => {
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [openQRCodeDialog, setOpenQRCodeDialog] = useState(false);
   const [loading, SetLoading] = useState<boolean>(true)
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const open = Boolean(anchorEl);
+  const current_link = useRef('')
+  const statusItems = useRef<{ value: string; title: string }[]>([]);
+
   const [newTable, setNewTable] = useState<Table[]>([{
     table_id: '',
     table_number: '',
@@ -34,9 +42,6 @@ const ManageTablePage = () => {
     { text: "QR Code", },
     { text: "Action", },
   ]
-
-  const current_link = useRef('')
-  const statusItems = useRef<{ value: string; title: string }[]>([]);
 
   useEffect(() => {
     fetchTableStatusOption()
@@ -150,6 +155,14 @@ const ManageTablePage = () => {
     });
   };
 
+  const handleClick = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <div>
       {loading && (
@@ -175,7 +188,20 @@ const ManageTablePage = () => {
               {!loading && newTable.map((item) => (
                 <tr key={item.table_id} className="border-b">
                   <td className="px-4 py-2">โต๊ะ {item.table_number}</td>
-                  <td className="px-4 py-2">{item.table_status}</td>
+                  <td className="px-4 py-2">
+                    <select
+                      name="table_status"
+                      value={item.table_status}
+                      className="border p-2 w-full"
+                    >
+                      <option value="" disabled> {item.table_status} (สถานะปัจจุบัน)</option>
+                      {statusItems.current.map((item) => (
+                        <option value={item.value} key={item.value}>
+                          {item.title}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                   <td>
                     <button onClick={() => {
                       current_link.current = `https://www.google.com/search?q=${item.table_number}`;
@@ -186,13 +212,14 @@ const ManageTablePage = () => {
                     </button>
                   </td>
                   <td className="px-4 py-2">
-                    <div className="flex gap-2">
-                      <button onClick={() => openDialogUpdate(item.table_id)} className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded">
-                        Edit
-                      </button>
-                      <button onClick={() => onDelete(item.table_id)} className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded">
-                        Delete
-                      </button>
+                    <div>
+                      <Button variant="contained" color="primary" onClick={handleClick}>
+                        เปิดเมนู
+                      </Button>
+                      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+                        <MenuItem onClick={() => openDialogUpdate(item.table_id)} ><Edit />  Edit</MenuItem>
+                        <MenuItem onClick={() => onDelete(item.table_id)}><Delete />Delete</MenuItem>
+                      </Menu>
                     </div>
                   </td>
                 </tr>
