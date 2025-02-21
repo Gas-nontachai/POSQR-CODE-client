@@ -3,7 +3,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { UserRole } from "@/types/user-role"
 import { User } from "@/types/user"
 import Swal from "sweetalert2";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 interface AddUserFormProps {
     onClose: () => void;
@@ -12,6 +12,8 @@ interface AddUserFormProps {
 const AddUserForm: React.FC<AddUserFormProps> = ({ onClose }) => {
     const { insertUser } = useUser()
     const { getUserRoleBy } = useUserRole()
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+
 
     const [formData, setFormData] = useState<User>({
         user_id: "",
@@ -38,26 +40,37 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onClose }) => {
         }
     };
 
-    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
+    const onChange = (e: any) => {
+        const { name, value, files } = e.target;
+        if (name === "user_img" && files && files[0]) {
+            setFormData((prevMenu) => ({
+                ...prevMenu,
+                [name]: files[0],
+            }));
+        } else {
+            setFormData((prevMenu) => ({
+                ...prevMenu,
+                [name]: value,
+            }));
+        }
     };
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             await insertUser(formData);
-            Swal.fire({
-                title: "User added successfully!",
-                icon: "success",
-                toast: true,
-                position: "top-end",
-                timer: 3000,
-                showConfirmButton: false
-            });
-            onClose()
+            // Swal.fire({
+            //     title: "User added successfully!",
+            //     icon: "success",
+            //     toast: true,
+            //     position: "top-end",
+            //     timer: 3000,
+            //     showConfirmButton: false
+            // });
+            // if (fileInputRef.current) {
+            //     fileInputRef.current.value = '';
+            // }
+            // onClose()
         } catch (error) {
             console.log(error);
         }
@@ -126,7 +139,7 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onClose }) => {
                     <input
                         type="file"
                         name="user_img"
-                        value={formData.user_img}
+                        ref={fileInputRef}
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                     />

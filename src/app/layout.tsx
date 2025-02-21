@@ -10,7 +10,7 @@ export default function RootLayout({
 }>) {
 
   const pathname = usePathname();
-  const noNavbarPages = ["/home", "/screen"]
+  const noNavbarPages = ["/home", "/screen", "/menu-detail"]
 
   return (
     <html lang="en">

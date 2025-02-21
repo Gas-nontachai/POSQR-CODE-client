@@ -4,10 +4,13 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { Squares2X2Icon, ClipboardDocumentListIcon, ShoppingCartIcon, TableCellsIcon, UserIcon, Cog6ToothIcon } from "@heroicons/react/24/outline";
+import { Squares2X2Icon, ClipboardDocumentListIcon, ShoppingCartIcon, TableCellsIcon, UserIcon, Cog6ToothIcon, ChevronRightIcon, FolderIcon, UsersIcon } from "@heroicons/react/24/outline";
 
 const Navbar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isOpenMenu, setIsOpenMenu] = useState(false);
+    const [isOpenManage, setIsOpenManage] = useState(false);
+
 
     const toggleDrawer = () => {
         setIsOpen(!isOpen);
@@ -15,10 +18,11 @@ const Navbar: React.FC = () => {
 
     const menuItems = [
         { name: "Dashboard", path: "/", icon: Squares2X2Icon },
+        { name: "Customer Screen", path: "/screen", icon: UsersIcon }
     ];
 
     const manageItems = [
-        { name: "Category", path: "/category", icon: Squares2X2Icon },
+        { name: "Category", path: "/category", icon: FolderIcon },
         { name: "Status", path: "/table-status", icon: ClipboardDocumentListIcon },
         { name: "Menu", path: "/menu", icon: ClipboardDocumentListIcon },
         { name: "Orders", path: "/order", icon: ShoppingCartIcon },
@@ -50,12 +54,19 @@ const Navbar: React.FC = () => {
                 </button>
                 <Menu as="div" className="relative text-left hidden md:block">
                     <div>
-                        <MenuButton className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50">
+                        <MenuButton onClick={(e) => setIsOpenMenu(!isOpenMenu)} className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-100">
                             Menu
-                            <ChevronDownIcon
-                                aria-hidden="true"
-                                className="-mr-1 size-5 text-gray-400"
-                            />
+                            {isOpenMenu ? (
+                                <ChevronDownIcon
+                                    aria-hidden="true"
+                                    className="w-4 h-4 ml-2 font-bold text-gray-400"
+                                />
+                            ) : (
+                                <ChevronRightIcon
+                                    aria-hidden="true"
+                                    className="w-4 h-4 ml-2 font-bold text-gray-400"
+                                />
+                            )}
                         </MenuButton>
                     </div>
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none">
@@ -65,7 +76,7 @@ const Navbar: React.FC = () => {
                                     {({ active }) => (
                                         <Link
                                             href={item.path}
-                                            className={`flex items-center px-4 py-2 text-sm text-gray-700 ${active ? "bg-gray-100 text-gray-900" : ""}`}
+                                            className={`flex items-center px-4 py-2 text-md text-gray-700 ${active ? "bg-gray-100 text-gray-900" : ""}`}
                                         >
                                             <item.icon className="w-5 h-5 mr-2 text-gray-500" />
                                             {item.name}
@@ -75,13 +86,19 @@ const Navbar: React.FC = () => {
                             ))}
 
                             <Menu as="div" className="relative">
-                                <MenuButton className="flex items-center px-4 py-2 text-sm text-gray-700">
-                                    <Cog6ToothIcon className="w-5 h-5 mr-2 text-gray-500" />
-                                    Manage
-                                    <ChevronDownIcon
-                                        aria-hidden="true"
-                                        className="w-4 h-4 ml-2 text-gray-400"
-                                    />
+                                <MenuButton onClick={(e) => setIsOpenManage(!isOpenManage)} className="flex items-center px-4 py-2 text-md w-full text-gray-700 hover:bg-gray-100">
+                                    <Cog6ToothIcon className="w-5 h-5 mr-2 text-gray-500" />Manage
+                                    {isOpenManage ? (
+                                        <ChevronDownIcon
+                                            aria-hidden="true"
+                                            className="w-4 h-4 ml-2 font-bold text-gray-400"
+                                        />
+                                    ) : (
+                                        <ChevronRightIcon
+                                            aria-hidden="true"
+                                            className="w-4 h-4 ml-2 font-bold text-gray-400"
+                                        />
+                                    )}
                                 </MenuButton>
                                 <Menu.Items className="absolute left-5 mt-2 w-56 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black/5 transition focus:outline-none">
                                     <div className="py-1">
