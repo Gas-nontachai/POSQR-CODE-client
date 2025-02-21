@@ -5,6 +5,7 @@ import { Menu } from "@/types/menu";
 import { Category } from "@/types/category";
 import { useMenu } from '@/hooks/useMenu';
 import { useCategory } from '@/hooks/useCategory';
+import { API_URL } from "@/utils/config";
 
 const { getMenuByID, updateMenuBy } = useMenu()
 const { getCategoryBy } = useCategory()
@@ -15,6 +16,7 @@ interface UpdateUserFormProps {
 }
 const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => {
     const [category, setCategory] = useState<Category[]>([]);
+
     const [formData, setFormData] = useState<Menu>({
         menu_id: '',
         menu_name: '',
@@ -105,11 +107,19 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                     <label htmlFor="user_img" className="block text-sm font-medium text-gray-700">
                         menu_img
                     </label>
+                    {formData.menu_img && (
+                        <div className="mb-2">
+                            <img
+                                src={`${API_URL}/${formData.menu_img}`}
+                                alt="Current Menu"
+                                className="w-32 h-32 object-cover"
+                            />
+                        </div>
+                    )}
                     <input
                         type="file"
                         name="menu_img"
-                        value={formData.menu_img || ''}
-                        onChange={onChange}
+                        onChange={(e) => setFormData({ ...formData, menu_img: (e.target as HTMLInputElement).files?.[0] || '' })}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                     />
                 </div>
@@ -136,7 +146,7 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                         type="submit"
                         className="bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 rounded flex items-center"
                     >
-                        Update User
+                        Update Menu
                     </button>
                 </div>
             </form>

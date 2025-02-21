@@ -7,6 +7,7 @@ import { useMenu } from '@/hooks/useMenu';
 import { useCategory } from '@/hooks/useCategory';
 import { motion } from "framer-motion";
 import UpdateMenuForm from '@/components/Menu/UpdateMenuForm';
+import { API_URL } from "@/utils/config";
 
 const { getCategoryBy } = useCategory();
 
@@ -17,13 +18,14 @@ const MenuPage = () => {
     getMenuBy,
   } = useMenu();
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const ref_menu_id = useRef('')
   const [menu, setMenu] = useState<Menu>({
     menu_id: '',
     menu_name: '',
     menu_price: 0,
     menu_img: '',
-    category: ''
+    category_id: ''
   });
 
   const [menus, setMenus] = useState<Menu[]>([])
@@ -43,12 +45,21 @@ const MenuPage = () => {
   }
 
   const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setMenu((prevMenu) => ({
-      ...prevMenu,
-      [name]: value,
-    }));
+    const { name, value, files } = e.target;
+    if (name === "menu_img" && files && files[0]) {
+      setMenu((prevMenu) => ({
+        ...prevMenu,
+        [name]: files[0],
+      }));
+    } else {
+      setMenu((prevMenu) => ({
+        ...prevMenu,
+        [name]: value,
+      }));
+    }
   };
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,14 +71,18 @@ const MenuPage = () => {
         menu_name: '',
         menu_price: 0,
         menu_img: '',
-        category: '',
+        category_id: '',
       });
-      fetchDataMenu()
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      fetchDataMenu();
     } catch (error) {
       console.error(error);
       Swal.fire("Error", "Failed to insert menu", "error");
     }
   };
+
 
   const handleEdit = (menu_id: string) => {
     try {
@@ -101,101 +116,150 @@ const MenuPage = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-semibold text-center mb-6">Insert Menu</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="menu_name" className="block text-sm font-medium text-gray-700">Menu Name</label>
-          <input
-            type="text"
-            name="menu_name"
-            id="menu_name"
-            value={menu.menu_name}
-            onChange={handleChange}
-            required
-            className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price</label>
-          <input
-            type="number"
-            name="menu_price"
-            id="price"
-            value={menu.menu_price}
-            onChange={handleChange}
-            className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
-          <select
-            name="category"
-            id="category"
-            value={menu.category}
-            onChange={handleChange}
-            className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="" disabled>-- เลือกประเภทอาหาร --</option>
-            {category.map((item) => (
-              <option value={item.category_name} key={item.category_name}>
-                {item.category_name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="menu_nmenu_imgame" className="block text-sm font-medium text-gray-700">Image URL</label>
-          <input
-            type="file"
-            name="menu_img"
-            id="menu_img"
-            value={menu.menu_img}
-            onChange={handleChange}
-            className="mt-1 p-2 w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-        <div className="text-center">
+    <>
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Menu Management</h1>
+        <form onSubmit={handleSubmit} className="mb-4">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Menu Name</label>
+            <input
+              type="text"
+              name="menu_name"
+              value={menu.menu_name}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Menu Price</label>
+            <input
+              type="number"
+              name="menu_price"
+              value={menu.menu_price}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Menu Image</label>
+            <input
+              type="file"
+              name="menu_img"
+              ref={fileInputRef}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Category</label>
+            <select
+              name="category_id"
+              value={menu.category_id}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+              <option value="">Select a category</option>
+              {category.map((cat) => (
+                <option key={cat.category_id} value={cat.category_id}>
+                  {cat.category_name}
+                </option>
+              ))}
+            </select>
+          </div>
           <button
             type="submit"
-            className="px-6 py-2 mt-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            Submit
+            Add Menu
           </button>
+        </form>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Menu Name
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Img
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Price
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Category
+                </th>
+                <th scope="col" className="relative px-6 py-3">
+                  <span className="sr-only">Edit</span>
+                </th>
+                <th scope="col" className="relative px-6 py-3">
+                  <span className="sr-only">Delete</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {menus.map((menu) => (
+                <tr key={menu.menu_id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {menu.menu_name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <img
+                      src={`${API_URL}/${menu.menu_img}`}
+                      alt={menu.menu_name}
+                      className="mt-2 w-20 h-20 object-cover"
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {menu.menu_price}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {category.find((cat) => cat.category_id === menu.category_id)?.category_name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => handleEdit(menu.menu_id)}
+                      className="text-indigo-600 hover:text-indigo-900"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      onClick={() => handleDelete(menu.menu_id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </form>
-      <h2 className="text-2xl font-semibold text-center mt-6">Menu List</h2>
-      <ul className="mt-4">
-        {menus.map((item: Menu) => (
-          <li key={item.menu_id} className="mb-2 p-4 bg-gray-100 rounded-md shadow-sm">
-            <h3 className="text-lg font-medium">{item.menu_name}</h3>
-            <p>Price: {item.menu_price} B</p>
-            <p>Category: {item.category}</p>
-            {item.menu_img && <img src={item.menu_img} alt={item.menu_name} className="mt-2 max-w-full h-auto" />}
-            <div className="mt-4 flex justify-between">
-              <button
-                onClick={() => handleEdit(item.menu_id)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(item.menu_id)}
-                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none"
-              >
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-
+      </div>
       {isUpdateDialogOpen && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 10 }}
-          transition={{ duration: 0.1 }}
+          transition={{ duration: 0.3 }}
           className="my-box"
         >
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setIsUpdateDialogOpen(false)} >
@@ -208,7 +272,7 @@ const MenuPage = () => {
           </div >
         </motion.div>
       )}
-    </div>
+    </>
   );
 };
 
