@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";   
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { Squares2X2Icon, ClipboardDocumentListIcon, ShoppingCartIcon, TableCellsIcon, UserIcon, Cog6ToothIcon, DocumentCheckIcon, ChevronRightIcon, FolderIcon, UsersIcon } from "@heroicons/react/24/outline";
 
 const Navbar: React.FC = () => {
@@ -54,7 +54,7 @@ const Navbar: React.FC = () => {
                 </button>
                 <Menu as="div" className="relative text-left hidden md:block">
                     <div>
-                        <MenuButton onClick={(e) => setIsOpenMenu(!isOpenMenu)} className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-100">
+                        <MenuButton onClick={(e) => setIsOpenMenu(!isOpenMenu)} className="inline-flex items-center w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-100">
                             Menu
                             {isOpenMenu ? (
                                 <ChevronDownIcon

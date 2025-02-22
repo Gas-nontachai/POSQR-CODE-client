@@ -55,7 +55,7 @@ const ManageTableStatusPage: React.FC = () => {
         }
         return true;
     }
-    
+
     const onSubmit = async () => {
         if (!await validateDuplicate(newTableStatus.table_status_name)) {
             return;

@@ -1,11 +1,24 @@
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Home, Favorite, AlignHorizontalLeft, Search, AddShoppingCartOutlined } from '@mui/icons-material';
 import Link from "next/link";
+import { Menu } from "@/types/menu"
+import { useMenu } from "@/hooks/useMenu"
+const { getMenuBy } = useMenu()
 
 const CustomerHomePage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [menuData, setMenuData] = useState<Menu[]>([])
+
+    useEffect(() => {
+        fetchMenu()
+    }, [])
+
+    const fetchMenu = async () => {
+        const res = await getMenuBy()
+        setMenuData(res)
+    }
 
     const categoryItems = [
         { icon: Home, href: "/home", name: "Home" },
