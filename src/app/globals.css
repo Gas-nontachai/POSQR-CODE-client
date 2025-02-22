@@ -12,3 +12,7 @@
   font-weight: 300;
   font-style: normal;
 }
+
+.custom-swal {
+  z-index: 9999 !important;
+}
