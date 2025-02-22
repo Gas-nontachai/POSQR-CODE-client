@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";   
 import { Squares2X2Icon, ClipboardDocumentListIcon, ShoppingCartIcon, TableCellsIcon, UserIcon, Cog6ToothIcon, DocumentCheckIcon, ChevronRightIcon, FolderIcon, UsersIcon } from "@heroicons/react/24/outline";
 
 const Navbar: React.FC = () => {

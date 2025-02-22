@@ -6,7 +6,6 @@ import Swal from "sweetalert2";
 import { Add } from "@mui/icons-material"
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Chip } from "@mui/material";
 
 const ManageCategoryPage: React.FC = () => {
 
@@ -39,9 +38,30 @@ const ManageCategoryPage: React.FC = () => {
         setNewCategory({ ...newCategory, category_name: e.target.value });
     };
 
+    const validateForm = (table_status_name: string) => {
+        if (!table_status_name.trim()) {
+            Swal.fire("Error", "กรุณากรอกชื่อหมวดหมู่อาหาร", "warning");
+            return false;
+        }
+        return true;
+    };
+    const validateDuplicate = async (category_name: string) => {
+        const res = await getCategoryBy();
+        const isDuplicate = res.some((category: Category) =>
+            category.category_name.trim().toLowerCase() === category_name.trim().toLowerCase()
+        );
+        if (isDuplicate) {
+            Swal.fire("Error", "ชื่อหมวดหมู่นี้มีอยู่แล้ว", "warning");
+            setNewCategory({ category_id: "", category_name: "" });
+            return false;
+        }
+        return true;
+    }
     const onSubmit = async () => {
-        if (!newCategory.category_name.trim()) {
-            Swal.fire("Error", "กรุณากรอกชื่อ Category", "warning");
+        if (!await validateDuplicate(newCategory.category_name)) {
+            return;
+        }
+        if (!await validateForm(newCategory.category_name)) {
             return;
         }
         try {
@@ -103,11 +123,10 @@ const ManageCategoryPage: React.FC = () => {
 
     return (
         <div className="container mx-auto my-10 p-5 max-w-3xl bg-white shadow-lg rounded-lg">
-            <h1 className="bg-blue-600 text-white flex justify-center items-center gap-2 p-4 rounded-md text-2xl font-bold">
+            <h1 className=" border-gray-200 bg-slate-100 text-gray-900 text-center p-4 rounded-xl text-2xl font-bold flex items-center justify-center gap-2">
                 <FastfoodIcon className="w-10 h-10" />
                 จัดการหมวดหมู่อาหาร
             </h1>
-
             <div className="flex gap-3 mt-5">
                 <input
                     type="text"
@@ -143,15 +162,15 @@ const ManageCategoryPage: React.FC = () => {
                                     <span className="text-gray-700">{item.category_name}</span>
                                     <div className="flex gap-2">
                                         <button
+                                            onClick={() => onUpdate(item.category_id)}
+                                            className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600"
+                                        >
+                                            แก้ไข
+                                        </button>
+                                        <button
                                             onClick={() => onDelete(item.category_id)}
                                             className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
                                         >ลบ
-                                        </button>
-                                        <button
-                                            onClick={() => onUpdate(item.category_id)}
-                                            className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
-                                        >
-                                            แก้ไข
                                         </button>
                                     </div>
                                 </li>

@@ -5,7 +5,7 @@ import { TableStatus } from "@/types/table-status";
 import { Add } from "@mui/icons-material";
 import { DocumentCheckIcon } from "@heroicons/react/24/outline";
 import Swal from "sweetalert2";
-import CircularProgress from '@mui/material/CircularProgress';
+import { CircularProgress } from '@mui/material';
 
 const ManageTableStatusPage: React.FC = () => {
     const { getTableStatusBy, insertTableStatus, deleteTableStatusBy, updateTableStatusBy } = useTableStatus();
@@ -36,9 +36,31 @@ const ManageTableStatusPage: React.FC = () => {
         setNewTableStatus({ ...newTableStatus, table_status_name: e.target.value });
     };
 
-    const onSubmit = async () => {
-        if (!newTableStatus.table_status_name.trim()) {
+    const validateForm = (table_status_name: string) => {
+        if (!table_status_name.trim()) {
             Swal.fire("Error", "กรุณากรอกชื่อ TableStatus", "warning");
+            return false;
+        }
+        return true;
+    };
+    const validateDuplicate = async (table_status_name: string) => {
+        const res = await getTableStatusBy();
+        const isDuplicate = res.some((status: TableStatus) =>
+            status.table_status_name.trim().toLowerCase() === table_status_name.trim().toLowerCase()
+        );
+        if (isDuplicate) {
+            Swal.fire("Error", "ชื่อสถานะนี้มีอยู่แล้ว", "warning");
+            setNewTableStatus({ table_status_id: "", table_status_name: "" });
+            return false;
+        }
+        return true;
+    }
+    
+    const onSubmit = async () => {
+        if (!await validateDuplicate(newTableStatus.table_status_name)) {
+            return;
+        }
+        if (!await validateForm(newTableStatus.table_status_name)) {
             return;
         }
         try {
@@ -105,7 +127,7 @@ const ManageTableStatusPage: React.FC = () => {
 
     return (
         <div className="container mx-auto my-10 p-5 max-w-3xl bg-white shadow-lg rounded-lg">
-            <h1 className="bg-blue-600 text-white text-center p-4 rounded-xl text-2xl font-bold flex items-center justify-center gap-2">
+            <h1 className=" border-gray-200 bg-slate-100 text-gray-900 text-center p-4 rounded-xl text-2xl font-bold flex items-center justify-center gap-2">
                 <DocumentCheckIcon className="w-10 h-10" />
                 จัดการสถานะ
             </h1>
@@ -134,8 +156,8 @@ const ManageTableStatusPage: React.FC = () => {
                 </div>
             ) : (
                 <>
-                    <div className="bg-gray-100 p-3 rounded-md h-auto max-h-96 overflow-y-auto">
-                        {FetchCate.length > 0 ? (
+                    {FetchCate.length > 0 ? (
+                        <div className="bg-gray-100 p-3 rounded-md h-auto max-h-96 overflow-y-auto">
                             <ul>
                                 {FetchCate.map((item) => (
                                     <li
@@ -144,9 +166,8 @@ const ManageTableStatusPage: React.FC = () => {
                                     >
                                         <span className="text-gray-700">{item.table_status_name}</span>
                                         <div className="flex gap-2">
-                                            <button
+                                            <button className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600"
                                                 onClick={() => onUpdate(item.table_status_id)}
-                                                className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
                                             >
                                                 แก้ไข
                                             </button>
@@ -160,10 +181,10 @@ const ManageTableStatusPage: React.FC = () => {
                                     </li>
                                 ))}
                             </ul>
-                        ) : (
-                            <p className="text-gray-500 text-center">ไม่มีสถานะ</p>
-                        )}
-                    </div>
+                        </div>
+                    ) : (
+                        <p className="text-gray-500 text-center">ไม่มีสถานะ</p>
+                    )}
                 </>
             )}
         </div>
