@@ -6,7 +6,7 @@ import { Category } from "@/types/category";
 import { useMenu } from '@/hooks/useMenu';
 import { useCategory } from '@/hooks/useCategory';
 import { motion } from "framer-motion";
-import UpdateMenuForm from '@/components/Menu/UpdateMenuForm';
+import UpdateMenuForm from '@/components/(Manage)/Menu/UpdateMenuForm';
 import { API_URL } from "@/utils/config";
 
 const { getCategoryBy } = useCategory();

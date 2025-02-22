@@ -2,10 +2,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useUser } from "@/hooks/useUser";
 import { User } from "@/types/user";
-import AddUserForm from "@/components/User/AddUserForm";
-import UpdateUserForm from "@/components/User/UpdateUserForm";
+import AddUserForm from "@/components/(Manage)/User/AddUserForm";
+import UpdateUserForm from "@/components/(Manage)/User/UpdateUserForm";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
+import { API_URL } from "@/utils/config";
 
 const ManageUserPage = () => {
   const { getUserBy, deleteUserBy } = useUser();
@@ -78,7 +79,7 @@ const ManageUserPage = () => {
                   <td className="px-4 py-2">{item.user_id}</td>
                   <td className="px-4 py-2">
                     <img
-                      src={item.user_img}
+                      src={`${API_URL}/${item.user_img}`}
                       className="w-12 h-12 object-cover rounded-full"
                     />
                   </td>

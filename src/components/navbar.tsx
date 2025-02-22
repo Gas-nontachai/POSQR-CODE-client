@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { Squares2X2Icon, ClipboardDocumentListIcon, ShoppingCartIcon, TableCellsIcon, UserIcon, Cog6ToothIcon, ChevronRightIcon, FolderIcon, UsersIcon } from "@heroicons/react/24/outline";
+import { Squares2X2Icon, ClipboardDocumentListIcon, ShoppingCartIcon, TableCellsIcon, UserIcon, Cog6ToothIcon, DocumentCheckIcon, ChevronRightIcon, FolderIcon, UsersIcon } from "@heroicons/react/24/outline";
 
 const Navbar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -22,12 +22,12 @@ const Navbar: React.FC = () => {
     ];
 
     const manageItems = [
-        { name: "Category", path: "/category", icon: FolderIcon },
-        { name: "Status", path: "/table-status", icon: ClipboardDocumentListIcon },
-        { name: "Menu", path: "/menu", icon: ClipboardDocumentListIcon },
+        { name: "User", path: "/user", icon: UserIcon },
         { name: "Orders", path: "/order", icon: ShoppingCartIcon },
         { name: "Table", path: "/table", icon: TableCellsIcon },
-        { name: "User", path: "/user", icon: UserIcon },
+        { name: "Menu", path: "/menu", icon: ClipboardDocumentListIcon },
+        { name: "Category", path: "/category", icon: FolderIcon },
+        { name: "Status", path: "/table-status", icon: DocumentCheckIcon }
     ];
 
     return (
@@ -59,12 +59,12 @@ const Navbar: React.FC = () => {
                             {isOpenMenu ? (
                                 <ChevronDownIcon
                                     aria-hidden="true"
-                                    className="w-4 h-4 ml-2 font-bold text-gray-400"
+                                    className="w-4 h-4 ml-2 font-bold text-gray-700"
                                 />
                             ) : (
                                 <ChevronRightIcon
                                     aria-hidden="true"
-                                    className="w-4 h-4 ml-2 font-bold text-gray-400"
+                                    className="w-4 h-4 ml-2 font-bold text-gray-700"
                                 />
                             )}
                         </MenuButton>
@@ -76,9 +76,8 @@ const Navbar: React.FC = () => {
                                     {({ active }) => (
                                         <Link
                                             href={item.path}
-                                            className={`flex items-center px-4 py-2 text-md text-gray-700 ${active ? "bg-gray-100 text-gray-900" : ""}`}
+                                            className={`flex items-center px-4 py-2 text-sm text-gray-700 ${active ? "bg-gray-100 text-gray-900" : ""}`}
                                         >
-                                            <item.icon className="w-5 h-5 mr-2 text-gray-500" />
                                             {item.name}
                                         </Link>
                                     )}
@@ -86,17 +85,17 @@ const Navbar: React.FC = () => {
                             ))}
 
                             <Menu as="div" className="relative">
-                                <MenuButton onClick={(e) => setIsOpenManage(!isOpenManage)} className="flex items-center px-4 py-2 text-md w-full text-gray-700 hover:bg-gray-100">
-                                    <Cog6ToothIcon className="w-5 h-5 mr-2 text-gray-500" />Manage
+                                <MenuButton onClick={(e) => setIsOpenManage(!isOpenManage)} className="flex items-center px-4 py-2 text-sm w-full text-gray-700 hover:bg-gray-100">
+                                    Manage
                                     {isOpenManage ? (
                                         <ChevronDownIcon
                                             aria-hidden="true"
-                                            className="w-4 h-4 ml-2 font-bold text-gray-400"
+                                            className="w-4 h-4 ml-2 font-bold text-gray-700"
                                         />
                                     ) : (
                                         <ChevronRightIcon
                                             aria-hidden="true"
-                                            className="w-4 h-4 ml-2 font-bold text-gray-400"
+                                            className="w-4 h-4 ml-2 font-bold text-gray-700"
                                         />
                                     )}
                                 </MenuButton>

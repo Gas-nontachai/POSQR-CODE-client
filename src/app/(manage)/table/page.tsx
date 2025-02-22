@@ -9,8 +9,8 @@ import { useTableStatus } from "@/hooks/useTableStatus";
 import { Table } from "@/types/table";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
-import AddTableForm from "@/components/Table/AddTableForm";
-import UpdateTableForm from "@/components/Table/UpdateTableForm";
+import AddTableForm from "@/components/(Manage)/Table/AddTableForm";
+import UpdateTableForm from "@/components/(Manage)/Table/UpdateTableForm";
 import QRCodeGenerator from '@/utils/qrcode-generater';
 
 const ManageTablePage = () => {
