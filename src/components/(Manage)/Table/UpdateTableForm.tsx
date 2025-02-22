@@ -33,7 +33,7 @@ const UpdateTableForm: React.FC<UpdateTableFormProps> = ({ table_data, statusIte
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-4 shadow-lg rounded-2xl border">
+    <div className="max-w-md mx-auto mt-10 p-4 rounded-2xl">
       <h2>เพิ่มโต๊ะใหม่</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

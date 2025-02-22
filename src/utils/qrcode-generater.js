@@ -1,5 +1,5 @@
 import React from "react";
-import { QRCodeCanvas } from "qrcode.react"; // ✅ เปลี่ยนจาก QRCode เป็น QRCodeCanvas
+import { QRCodeCanvas } from "qrcode.react";
 
 const QRCodeGenerator = ({ link, size }) => {
     return (
@@ -10,4 +10,3 @@ const QRCodeGenerator = ({ link, size }) => {
 };
 
 export default QRCodeGenerator;
- 
