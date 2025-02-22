@@ -2,22 +2,32 @@
 import { useState, useEffect } from "react";
 import { Home, Favorite, AlignHorizontalLeft, Search, AddShoppingCartOutlined } from '@mui/icons-material';
 import Link from "next/link";
+import { Skeleton } from "@mui/material";
 import { Menu } from "@/types/menu"
+import { API_URL } from "@/utils/config"
 import { useMenu } from "@/hooks/useMenu"
 const { getMenuBy } = useMenu()
 
 const CustomerHomePage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [menuData, setMenuData] = useState<Menu[]>([])
+    const [menuItems, setMenuItems] = useState<Menu[]>([])
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchMenu()
     }, [])
 
     const fetchMenu = async () => {
-        const res = await getMenuBy()
-        setMenuData(res)
+        try {
+            setLoading(true)
+            const res = await getMenuBy()
+            setMenuItems(res)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
     }
 
     const categoryItems = [
@@ -71,10 +81,10 @@ const CustomerHomePage = () => {
                         className="bg-white w-64 p-4"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <h3 className="text-lg font-semibold">Categories</h3>
+                        <h3 className="text-lg font-semibold cursor-pointer">Categories</h3>
                         <ul className="mt-4">
                             {categoryItems.map((item, index) => (
-                                <li key={index} className="my-2 hover:bg-gray-200 hover:rounded-xl hover:pl-3 p-2">
+                                <li key={index} className="my-2 hover:bg-gray-200 hover:rounded-xl hover:pl-3 p-2 cursor-pointer">
                                     <Link href={item.href}>
                                         <div className="flex items-center">
                                             <item.icon className="text-gray-600" />
@@ -99,32 +109,43 @@ const CustomerHomePage = () => {
                     })}
                 </div>
             </div>
-
-            {/* Food Cards */}
-            <div className="grid grid-cols-2 gap-4">
-                {foodItems.map((item) => (
-                    <Link key={item.id} href="/menu-detail">
-                        <div className="bg-white border-gray-300 border-2 p-4 rounded-lg shadow-lg">
-                            <div className="relative">
-                                <img src={item.img} alt={item.name} className="w-full h-32 object-cover rounded-lg" />
-                                <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-sm rounded">{item.discount} OFF</span>
-                                <Favorite className="absolute top-2 right-2 text-red-500 cursor-pointer" />
-                            </div>
-                            <h3 className="mt-2 text-lg font-semibold">{item.name}</h3>
-                            <div className="flex justify-between">
-                                <p className="text-green-600 font-bold">${item.price.toFixed(2)}</p>
-                                <button
-                                    className=" bg-[#3fc979] text-white px-3 py-1 rounded-full"
-                                >
-                                    +
-                                </button>
-                            </div>
+            <div className="grid xs:grid-cols-2 md:grid-cols-4 sm:grid-cols-2 lk:grid-cols-2 gap-4">
+                {loading
+                    ?
+                    Array.from({ length: 8 }).map((_, index) => (
+                        <div
+                            key={index}
+                            className="bg-white border-gray-300 border-2 p-4 rounded-lg shadow-lg"
+                        >
+                            <Skeleton variant="rectangular" width="100%" height={128} />
+                            <Skeleton variant="text" width="80%" height={30} className="mt-2" />
+                            <Skeleton variant="text" width="50%" height={24} />
                         </div>
-                    </Link>
-
-                ))}
+                    ))
+                    :
+                    
+                    menuItems.map((item) => (
+                        <Link key={item.menu_id} href="/menu-detail">
+                            <div className="bg-white border-gray-300 border-2 p-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-100">
+                                <div className="relative">
+                                    <img
+                                        src={`${API_URL}${item.menu_img}`}
+                                        alt={item.menu_name}
+                                        className="w-full h-32 object-cover rounded-lg"
+                                    />
+                                    <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-sm rounded">
+                                        {item.menu_price} OFF
+                                    </span>
+                                </div>
+                                <h3 className="mt-2 text-lg font-semibold">{item.menu_name}</h3>
+                                <div className="flex justify-between">
+                                    <p className="text-green-600 font-bold">${item.menu_price.toFixed(2)}</p>
+                                    <button className="bg-[#3fc979] text-white px-3 py-1 rounded-full">+</button>
+                                </div>
+                            </div>
+                        </Link>
+                    ))}
             </div>
-
             <Link href="">
                 <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#3fc979] hover:bg-[#36bd6e] text-white py-5 rounded-b-3xl rounded-t-xl flex cursor-pointer justify-center w-4/6">
                     <span className='font-bold text-wrap'><AddShoppingCartOutlined />&nbsp;&nbsp;Add to Cart</span>

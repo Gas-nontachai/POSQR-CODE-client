@@ -7,26 +7,20 @@ import { useMenu } from '@/hooks/useMenu';
 import { useCategory } from '@/hooks/useCategory';
 import { motion } from "framer-motion";
 import UpdateMenuForm from '@/components/(Manage)/Menu/UpdateMenuForm';
+import AddMenuForm from '@/components/(Manage)/Menu/AddMenuForm';
 import { API_URL } from "@/utils/config";
 
 const { getCategoryBy } = useCategory();
+const {
+  deleteMenuBy,
+  getMenuBy,
+} = useMenu();
 
 const MenuPage = () => {
-  const {
-    insertMenu,
-    deleteMenuBy,
-    getMenuBy,
-  } = useMenu();
+
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const ref_menu_id = useRef('')
-  const [menu, setMenu] = useState<Menu>({
-    menu_id: '',
-    menu_name: '',
-    menu_price: 0,
-    menu_img: '',
-    category_id: ''
-  });
 
   const [menus, setMenus] = useState<Menu[]>([])
   const [category, setCategory] = useState<Category[]>([]);
@@ -43,44 +37,6 @@ const MenuPage = () => {
   const fetchDataCategory = async () => {
     setCategory(await getCategoryBy())
   }
-
-  const handleChange = (e: any) => {
-    const { name, value, files } = e.target;
-    if (name === "menu_img" && files && files[0]) {
-      setMenu((prevMenu) => ({
-        ...prevMenu,
-        [name]: files[0],
-      }));
-    } else {
-      setMenu((prevMenu) => ({
-        ...prevMenu,
-        [name]: value,
-      }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await insertMenu(menu);
-      Swal.fire("Success", "Menu inserted successfully", "success");
-      setMenu({
-        menu_id: '',
-        menu_name: '',
-        menu_price: 0,
-        menu_img: '',
-        category_id: '',
-      });
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-      fetchDataMenu();
-    } catch (error) {
-      console.error(error);
-      Swal.fire("Error", "Failed to insert menu", "error");
-    }
-  };
-
 
   const handleEdit = (menu_id: string) => {
     try {
@@ -115,65 +71,15 @@ const MenuPage = () => {
 
   return (
     <>
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 w-3/4">
         <h1 className="text-2xl font-bold mb-4">Menu Management</h1>
-        <form onSubmit={handleSubmit} className="mb-4">
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Menu Name</label>
-            <input
-              type="text"
-              name="menu_name"
-              value={menu.menu_name}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Menu Price</label>
-            <input
-              type="number"
-              name="menu_price"
-              value={menu.menu_price}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Menu Image</label>
-            <input
-              type="file"
-              name="menu_img"
-              ref={fileInputRef}
-              onChange={handleChange}
-              className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Category</label>
-            <select
-              name="category_id"
-              value={menu.category_id}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            >
-              <option value="">Select a category</option>
-              {category.map((cat) => (
-                <option key={cat.category_id} value={cat.category_id}>
-                  {cat.category_name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            type="submit"
-            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Add Menu
-          </button>
-        </form>
+        <button
+          onClick={() => setIsAddDialogOpen(true)}
+          type="submit"
+          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Add Menu
+        </button>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -251,6 +157,8 @@ const MenuPage = () => {
           </table>
         </div>
       </div>
+
+
       {isUpdateDialogOpen && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -267,6 +175,18 @@ const MenuPage = () => {
               <UpdateMenuForm menu_id={ref_menu_id.current} onClose={() => { setIsUpdateDialogOpen(false); fetchDataMenu(); }} />
             </div >
           </div >
+        </motion.div>
+      )}
+
+      {isAddDialogOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 10 }}
+          transition={{ duration: 0.3 }}
+          className="my-box"
+        >
+          <AddMenuForm onClose={() => { setIsAddDialogOpen(false); fetchDataMenu(); }} />\
         </motion.div>
       )}
     </>
