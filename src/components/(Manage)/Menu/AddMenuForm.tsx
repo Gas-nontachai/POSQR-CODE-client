@@ -20,17 +20,25 @@ const AddMenuForm: React.FC<AddMenuFormProps> = ({ onClose }) => {
         menu_name: '',
         menu_price: 0,
         menu_img: '',
-        category_id: ''
+        menu_status: '',
+        menu_amount: 0,
+        category_name: ''
     });
 
     const [category, setCategory] = useState<Category[]>([]);
+    const [menuStatus, setMenuStatus] = useState<{ menu_status: string }[]>([]);
 
     useEffect(() => {
-        fetchDataCategory();
+        fetchData();
     }, []);
 
-    const fetchDataCategory = async () => {
+    const fetchData = async () => {
         setCategory(await getCategoryBy());
+        setMenuStatus([
+            { menu_status: 'available' },
+            { menu_status: 'out of stock' },
+            { menu_status: 'pre-order' },
+        ]);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +51,9 @@ const AddMenuForm: React.FC<AddMenuFormProps> = ({ onClose }) => {
                 menu_name: '',
                 menu_price: 0,
                 menu_img: '',
-                category_id: '',
+                menu_status: '',
+                menu_amount: 0,
+                category_name: ''
             });
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
@@ -85,8 +95,6 @@ const AddMenuForm: React.FC<AddMenuFormProps> = ({ onClose }) => {
                 >
                     X
                 </button>
-
-                {/* ฟอร์มเพิ่มเมนู */}
                 <form onSubmit={handleSubmit} className="mb-4 mt-6">
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Menu Name</label>
@@ -121,17 +129,34 @@ const AddMenuForm: React.FC<AddMenuFormProps> = ({ onClose }) => {
                         />
                     </div>
                     <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700">Menu Status</label>
+                        <select
+                            name="menu_status"
+                            value={menu.menu_status}
+                            onChange={handleChange}
+                            required
+                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        >
+                            <option value="">Select a Menu Status</option>
+                            {menuStatus.map((item) => (
+                                <option key={item.menu_status} value={item.menu_status}>
+                                    {item.menu_status}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Category</label>
                         <select
-                            name="category_id"
-                            value={menu.category_id}
+                            name="category_name"
+                            value={menu.category_name}
                             onChange={handleChange}
                             required
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         >
                             <option value="">Select a category</option>
                             {category.map((cat) => (
-                                <option key={cat.category_id} value={cat.category_id}>
+                                <option key={cat.category_id} value={cat.category_name}>
                                     {cat.category_name}
                                 </option>
                             ))}

@@ -16,29 +16,34 @@ interface UpdateUserFormProps {
 }
 const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => {
     const [category, setCategory] = useState<Category[]>([]);
-
+    const [menuStatus, setMenuStatus] = useState<{ menu_status: string }[]>([]);
     const [formData, setFormData] = useState<Menu>({
         menu_id: '',
         menu_name: '',
         menu_price: 0,
         menu_img: '',
-        category_id: ''
+        menu_status: '',
+        menu_amount: 0,
+        category_name: ''
     });
 
     useEffect(() => {
-        fetchMenuData()
-        fetchCategory()
+        fetchData()
     }, [])
 
-    const fetchMenuData = async () => {
+    const fetchData = async () => {
         const res = await getMenuByID({ menu_id })
         setFormData(res)
-    }
 
-    const fetchCategory = async () => {
-        const res = await getCategoryBy();
-        setCategory(Array.isArray(res) ? res : [res])
-    };
+        const res2 = await getCategoryBy();
+        setCategory(Array.isArray(res2) ? res2 : [res2])
+
+        setMenuStatus([
+            { menu_status: 'available' },
+            { menu_status: 'out of stock' },
+            { menu_status: 'pre-order' },
+        ]);
+    }
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
@@ -49,11 +54,17 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const formDataToSubmit = {
+            ...formData,
+            menu_img: formData.menu_img || formData.menu_img
+        };
+
         try {
-            await updateMenuBy(formData);
-            onClose()
+            await updateMenuBy(formDataToSubmit);
+            onClose();
             Swal.fire({
-                title: "User updated successfully!",
+                title: "Menu updated successfully!",
                 icon: "success",
                 toast: true,
                 position: "top-end",
@@ -72,6 +83,7 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
             });
         }
     };
+
 
     return (
         <>
@@ -97,7 +109,7 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                     <input
                         type="number"
                         name="menu_price"
-                        value={formData.menu_price || ''}
+                        value={formData.menu_price || 0}
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
@@ -124,18 +136,36 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                     />
                 </div>
                 <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700">Menu Status</label>
+                    <select
+                        name="menu_status"
+                        value={formData.menu_status || ''}
+                        onChange={onChange}
+                        required
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    >
+                        <option value="">Select a Menu Status</option>
+                        {menuStatus.map((item) => (
+                            <option key={item.menu_status} value={item.menu_status}>
+                                {item.menu_status}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="mb-4">
                     <label htmlFor="category_id" className="block text-sm font-medium text-gray-700">
                         category_id
                     </label>
                     <select
-                        name="category_id"
-                        value={formData.category_id || ''}
+                        name="category_name"
+                        value={formData.category_name || ''}
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
                     >
                         {category.map((item) => (
-                            <option key={item.category_id} value={item.category_id}>
+                            <option key={item.category_id} value={item.category_name}>
                                 {item.category_name}
                             </option>
                         ))}

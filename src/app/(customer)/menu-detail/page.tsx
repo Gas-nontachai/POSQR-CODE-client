@@ -1,9 +1,43 @@
+"use client"
 import { Favorite, AddShoppingCartOutlined } from '@mui/icons-material'
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Menu } from "@/types/type"
+import { useMenu } from '@/hooks/useMenu';
+import { useEffect, useState } from 'react';
+
+const { getMenuByID } = useMenu()
 
 export default function ProductDetail() {
+    const searchParams = useSearchParams();
+    const menu_id = searchParams.get('menu_id');
+
+    const [menuDetail, setMenuDetail] = useState<Menu>({
+        menu_id: '',
+        menu_name: '',
+        menu_price: 0,
+        menu_img: '',
+        category_id: '',
+    })
+
+    useEffect(() => {
+        fetchMenu()
+    }, [])
+
+    const fetchMenu = async () => {
+        try {
+            if (menu_id) {
+                const res = await getMenuByID({ menu_id: menu_id })
+                setMenuDetail(res)
+            }
+        } catch (error) {
+
+        }
+    }
+
     return (
         <div className="container mx-auto bg-gray-100 min-h-screen rounded-xl">
+            <h1>Menu ID: {menu_id}</h1>
             <div className="relative">
                 <img
                     src="https://www.allrecipes.com/thmb/0xH8n2D4cC97t7mcC7eT2SDZ0aE=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/6776_Pizza-Dough_ddmfs_2x1_1725-fdaa76496da045b3bdaadcec6d4c5398.jpg" // เปลี่ยนเป็น URL รูปจริง

@@ -1,58 +1,74 @@
 "use client"
-import { useState, useEffect } from "react";
-import { Home, Favorite, AlignHorizontalLeft, Search, AddShoppingCartOutlined } from '@mui/icons-material';
+import { useState, useEffect, useRef } from "react";
+import { AlignHorizontalLeft, Search, Restaurant, Add, Remove } from '@mui/icons-material';
 import Link from "next/link";
 import { Skeleton } from "@mui/material";
-import { Menu } from "@/types/menu"
+import { Category, Menu } from "@/types/types"
 import { API_URL } from "@/utils/config"
 import { useMenu } from "@/hooks/useMenu"
+import { useCategory } from "@/hooks/useCategory"
 const { getMenuBy } = useMenu()
+const { getCategoryBy } = useCategory()
+
+import ShowMenuDetail from "@/components/(Customer)/Menu/ShowMenuDetail";
+import CheckBill from "@/components/(Customer)/Menu/CheckBill";
 
 const CustomerHomePage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [menuItems, setMenuItems] = useState<Menu[]>([])
+    const [isCheckBill, setIsCheckBill] = useState(false);
+    const [isMenuDetail, setIsMenuDetail] = useState(false);
+    const [menuItems, setMenuItems] = useState<Menu[]>([]);
     const [loading, setLoading] = useState(true);
+    const [categoryItems, setCategoryItems] = useState<Category[]>([]);
+    const menu_id = useRef('');
+
+    const [filteredMenuItems, setFilteredMenuItems] = useState<Menu[]>([]);
+
 
     useEffect(() => {
-        fetchMenu()
-    }, [])
+        fetchMenu();
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        if (searchTerm === "") {
+            setFilteredMenuItems(menuItems);
+        } else {
+            setFilteredMenuItems(
+                menuItems.filter((item) =>
+                    item.menu_name.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+            );
+        }
+    }, [searchTerm, menuItems]);
 
     const fetchMenu = async () => {
         try {
-            setLoading(true)
-            const res = await getMenuBy()
-            setMenuItems(res)
+            setLoading(true);
+            const res = await getMenuBy();
+            setMenuItems(res);
+            setFilteredMenuItems(res);
         } catch (error) {
-            console.error(error)
+            console.error(error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
-    const categoryItems = [
-        { icon: Home, href: "/home", name: "Home" },
-        { icon: Favorite, href: "/favorite", name: "Favorite" },
-        { icon: AlignHorizontalLeft, href: "/align", name: "Align" },
-        { icon: Search, href: "/search", name: "Search" }
-    ];
+    const fetchData = async () => {
+        const res = await getCategoryBy();
+        setCategoryItems(res);
+    };
 
-    const foodItems = [
-        { id: 1, name: "Ramen", price: 12.00, discount: "5%", img: "https://recipe.ajinomoto.co.th/_next/image?url=https%3A%2F%2Fwww.ajinomoto.co.th%2Fstorage%2Fphotos%2Fshares%2FRecipe%2FMenu%2F11somtomthai%2F614b1af40aff8.jpg&w=3840&q=75" },
-        { id: 2, name: "Spaghetti", price: 10.00, discount: "12%", img: "https://images.deliveryhero.io/image/fd-th/LH/k9bv-listing.jpg" },
-        { id: 3, name: "Spaghetti", price: 10.00, discount: "12%", img: "https://images.deliveryhero.io/image/fd-th/LH/k9bv-listing.jpg" },
-        { id: 4, name: "Spaghetti", price: 10.00, discount: "12%", img: "https://images.deliveryhero.io/image/fd-th/LH/k9bv-listing.jpg" },
-        { id: 5, name: "Spaghetti", price: 10.00, discount: "12%", img: "https://images.deliveryhero.io/image/fd-th/LH/k9bv-listing.jpg" },
-        { id: 6, name: "Spaghetti", price: 10.00, discount: "12%", img: "https://images.deliveryhero.io/image/fd-th/LH/k9bv-listing.jpg" },
-        { id: 7, name: "Spaghetti", price: 10.00, discount: "12%", img: "https://images.deliveryhero.io/image/fd-th/LH/k9bv-listing.jpg" },
-        // ... เพิ่มอาหารอื่น ๆ
-    ];
+    const handleCategoryClick = (categoryName: string) => {
+        console.log(categoryName);
+        setSearchTerm(categoryName);
+    };
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
     return (
         <div className="container mx-auto p-4 bg-gray-100 min-h-screen">
-            {/* Navbar */}
             <div className="flex justify-between items-center mb-4">
                 <AlignHorizontalLeft className="text-2xl cursor-pointer text-gray-950 hover:text-gray-700" onClick={toggleSidebar} />
                 <div className="relative">
@@ -69,7 +85,7 @@ const CustomerHomePage = () => {
 
             <div className="flex justify-start flex-col">
                 <h1 className="text-xl font-sans">GGas Nonthachai</h1>
-                <span className="font-extralight mt-2">choose your delicious meal</span>
+                <span className="font-extralight mt-2">เสิร์ฟความอร่อยทุกวัน</span>
             </div>
 
             {isSidebarOpen && (
@@ -85,73 +101,108 @@ const CustomerHomePage = () => {
                         <ul className="mt-4">
                             {categoryItems.map((item, index) => (
                                 <li key={index} className="my-2 hover:bg-gray-200 hover:rounded-xl hover:pl-3 p-2 cursor-pointer">
-                                    <Link href={item.href}>
+                                    <a onClick={() => handleCategoryClick(item.category_name)}>
                                         <div className="flex items-center">
-                                            <item.icon className="text-gray-600" />
-                                            <span className="ml-2">{item.name}</span>
+                                            <span className="ml-2">{item.category_name}</span>
                                         </div>
-                                    </Link>
+                                    </a>
                                 </li>
                             ))}
                         </ul>
                     </div>
                 </div>
             )}
-            <div className="flex justify-center my-4">
-                <div className="grid grid-cols-4 gap-x-8 gap-y-2">
-                    {categoryItems.map((item, index) => {
-                        const IconComponent = item.icon;
-                        return (
-                            <a key={index} href={item.href} className="flex justify-center items-center bg-gray-100 w-14 h-14 border-4 rounded-2xl border-gray-400 hover:border-green-600 group">
-                                <IconComponent className="text-gray-400 group-hover:text-green-600" />
-                            </a>
-                        );
-                    })}
+
+            <div className="flex justify-center my-4 cursor-pointer">
+                <div className="grid grid-cols-4 gap-x-8 gap-y-2 md:grid-cols-2 lg:grid-cols-8">
+                    {categoryItems.map((item, index) => (
+                        <a
+                            key={index}
+                            className="flex justify-center items-center bg-gray-100 w-auto p-2 h-14 border-4 rounded-2xl border-gray-400 hover:border-green-600 group"
+                            onClick={() => handleCategoryClick(item.category_name)}
+                        >
+                            {item.category_name}
+                        </a>
+                    ))}
                 </div>
             </div>
-            <div className="grid xs:grid-cols-2 md:grid-cols-4 sm:grid-cols-2 lk:grid-cols-2 gap-4">
-                {loading
-                    ?
+
+
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {loading ? (
                     Array.from({ length: 8 }).map((_, index) => (
-                        <div
-                            key={index}
-                            className="bg-white border-gray-300 border-2 p-4 rounded-lg shadow-lg"
-                        >
+                        <div key={index} className="bg-white border-gray-300 border-2 p-4 rounded-lg shadow-lg">
                             <Skeleton variant="rectangular" width="100%" height={128} />
                             <Skeleton variant="text" width="80%" height={30} className="mt-2" />
                             <Skeleton variant="text" width="50%" height={24} />
                         </div>
                     ))
-                    :
-                    
-                    menuItems.map((item) => (
-                        <Link key={item.menu_id} href="/menu-detail">
-                            <div className="bg-white border-gray-300 border-2 p-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-100">
+                ) : (
+                    filteredMenuItems.map((item) => (
+                        <a key={item.menu_id} onClick={(e) => {
+                            menu_id.current = item.menu_id;
+                            setIsMenuDetail(true);
+                        }}
+                        >
+                            <div className="bg-white border-gray-300 w-5/5 h-64 border-2 p-4 rounded-lg shadow-lg hover:shadow-xl hover:bg-gray-100 transition-all duration-200 ease-in-out">
                                 <div className="relative">
                                     <img
                                         src={`${API_URL}${item.menu_img}`}
                                         alt={item.menu_name}
                                         className="w-full h-32 object-cover rounded-lg"
                                     />
-                                    <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-sm rounded">
-                                        {item.menu_price} OFF
+                                    <span
+                                        className={`
+                                            absolute top-2 left-2 px-2 py-1 text-sm rounded 
+                                            ${item.menu_status === 'available' ? 'bg-green-500' : ''}
+                                            ${item.menu_status === 'out of stock' ? 'bg-red-500' : ''}
+                                            ${item.menu_status === 'pre-order' ? 'bg-blue-500' : ''}
+                                            text-white
+                                        `}
+                                    >
+                                        {item.menu_status === 'available' ? 'มีสินค้า' : ''}
+                                        {item.menu_status === 'out of stock' ? 'สินค้าหมด' : ''}
+                                        {item.menu_status === 'pre-order' ? 'สั่งจอง' : ''}
                                     </span>
                                 </div>
-                                <h3 className="mt-2 text-lg font-semibold">{item.menu_name}</h3>
+                                <h3 className="mt-2 w-full h-9 text-sm font-semibold">{item.menu_name}</h3>
                                 <div className="flex justify-between">
-                                    <p className="text-green-600 font-bold">${item.menu_price.toFixed(2)}</p>
-                                    <button className="bg-[#3fc979] text-white px-3 py-1 rounded-full">+</button>
+                                    <p className="text-green-600 font-bold">฿ {item.menu_price.toFixed(2)}</p>
+                                    <div className="flex items-center gap-4 bg-slate-200 rounded-full">
+                                        <button className="bg-[#bdbdbd] hover:bg-[#acabab] text-white px-1 py-1 font-bold rounded shadow-md transform hover:scale-105 transition duration-300">
+                                            <Remove className='w-5 h-5' />
+                                        </button>
+                                        <span className="text-xl text-gray-700 font-semibold">1</span>
+                                        <button className="bg-[#3fc979] hover:bg-[#3ac473] text-white px-1 py-1 font-bold rounded shadow-md transform hover:scale-105 transition duration-300">
+                                            <Add className='w-5 h-5' />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </Link>
-                    ))}
+                        </a>
+                    ))
+                )}
             </div>
-            <Link href="">
-                <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#3fc979] hover:bg-[#36bd6e] text-white py-5 rounded-b-3xl rounded-t-xl flex cursor-pointer justify-center w-4/6">
-                    <span className='font-bold text-wrap'><AddShoppingCartOutlined />&nbsp;&nbsp;Add to Cart</span>
-                </div>
-            </Link>
-        </div>
+            {!isMenuDetail && (
+                <a onClick={() => setIsCheckBill(true)}>
+                    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-[#3fc979] hover:bg-[#36bd6e] text-white px-3 py-5 rounded-b-3xl rounded-t-xl flex cursor-pointer justify-between w-4/6">
+                        <span className='font-bold text-wrap'>
+                            <Restaurant className="mr-2" />
+                            สั่งอาหารทั้งหมด
+                        </span>
+                        <span className='font-semibold text-wrap'>3 รายการ</span>
+                    </div>
+                </a>
+            )}
+
+            {isMenuDetail && (
+                <ShowMenuDetail menu_id={menu_id.current ?? ''} onClose={() => { setIsMenuDetail(false) }} />
+            )}
+
+            {isCheckBill && (
+                <CheckBill onClose={() => { setIsCheckBill(false) }} />
+            )}
+        </div >
     );
 };
 

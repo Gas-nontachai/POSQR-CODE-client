@@ -108,6 +108,12 @@ const MenuPage = () => {
                 >
                   Category
                 </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  MENU STATUS
+                </th>
                 <th scope="col" className="relative px-6 py-3">
                   <span className="sr-only">Edit</span>
                 </th>
@@ -133,7 +139,10 @@ const MenuPage = () => {
                     {menu.menu_price}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {category.find((cat) => cat.category_id === menu.category_id)?.category_name}
+                    {menu.menu_status}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {category.find((cat) => cat.category_name === menu.category_name)?.category_name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
@@ -157,8 +166,6 @@ const MenuPage = () => {
           </table>
         </div>
       </div>
-
-
       {isUpdateDialogOpen && (
         <motion.div
           initial={{ opacity: 0 }}

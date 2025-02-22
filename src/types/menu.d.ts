@@ -3,5 +3,8 @@ export type Menu = {
     menu_name: string,
     menu_price: number,
     menu_img: string | File,
-    category_id: string,
+    menu_status: string,
+    menu_amount: number,
+    category_name: string,
+    adddate?: string | Date
 }
