@@ -20,7 +20,7 @@ export const useCart = () => {
     };
     return {
         generateCartID: (): Promise<string> => fetchData("/generateCartID"),
-        getCartBy: (data?: any): Promise<Cart[]> => fetchData("/getCartBy"),
+        getCartBy: (data?: any): Promise<Cart[]> => fetchData("/getCartBy", data),
         getCartByID: (data: { cart_id: string }): Promise<Cart> => fetchData("/getCartByID", data),
         updateCartBy: (data: Cart): Promise<Cart> => fetchData("/updateCartBy", data),
         insertCart: (data: Cart): Promise<Cart> => fetchData("/insertCart", data),

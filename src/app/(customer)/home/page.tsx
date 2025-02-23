@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, useRef } from "react";
 import {
-    AlignHorizontalLeft, Search, Restaurant, Add, Remove, ArrowBack, Fastfood, Grass,
+    AlignHorizontalLeft, Search, Restaurant, ArrowBack, Fastfood, Grass,
     LocalDrink, Icecream, Kitchen, LocalBar, Anchor, ShoppingCart, AddLocation
 } from '@mui/icons-material';
 import { Skeleton } from "@mui/material";
@@ -16,6 +16,7 @@ import ShowMenuDetail from "@/components/(Customer)/Menu/ShowMenuDetail";
 import CheckBill from "@/components/(Customer)/Menu/CheckBill";
 
 const CustomerHomePage = () => {
+    const [searchMenu, setSearchMenu] = useState('');
     const [showReset, setShowReset] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCheckBill, setIsCheckBill] = useState(false);
@@ -24,12 +25,12 @@ const CustomerHomePage = () => {
     const [loading, setLoading] = useState(true);
     const [categoryItems, setCategoryItems] = useState<Category[]>([]);
     const menu_id = useRef('');
-
-    
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
     useEffect(() => {
         fetchData();
-    }, []); 
+    }, []);
+
     const fetchData = async () => {
         try {
             setLoading(true);
@@ -38,30 +39,56 @@ const CustomerHomePage = () => {
             const cateData = await getCategoryBy();
             setCategoryItems(cateData);
         } catch (error) {
-            console.error(error);
+            console.error("Error:", error);
         } finally {
             setLoading(false);
         }
-    }; 
+    };
+
+    const handleSearch = async () => {
+        setLoading(true);
+        try {
+            await delay(200)
+            const res = await getMenuBy();
+            const filterMenu = res.filter((menu: Menu) =>
+                menu.menu_name.toLowerCase().includes(searchMenu.toLowerCase())
+            );
+            setMenuItems(filterMenu);
+            setShowReset(true);
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleCategory = async (categoryName: string) => {
         setLoading(true);
-        setTimeout(async () => {
+        try {
+            await delay(200)
             const res = await getMenuBy();
             const filterMenu = res.filter((menu: Menu) => menu.category_name === categoryName);
             setMenuItems(filterMenu);
             setShowReset(true);
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
             setLoading(false);
-        }, 200);
+        }
     };
 
-    const resetFilter = async () => {
+    const resetMenuSearch = async () => {
         setLoading(true);
-        setTimeout(async () => {
+        try {
+            await delay(200)
             const res = await getMenuBy();
             setMenuItems(res);
             setShowReset(false);
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
             setLoading(false);
-        }, 200);
+        }
     };
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -76,7 +103,12 @@ const CustomerHomePage = () => {
                         type="text"
                         className="pl-10 py-2 rounded-md border border-gray-300"
                         placeholder="Search..."
-
+                        onChange={(e) => setSearchMenu(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleSearch()
+                            }
+                        }}
                     />
                 </div>
             </div>
@@ -86,13 +118,14 @@ const CustomerHomePage = () => {
                 </span>
                 <span className="text-gray-500 font-light mt-2">เสิร์ฟความอร่อยทุกวัน</span>
                 <div className="absolute top-3 right-3">
-                    <div className="relative bg-white shadow-lg rounded-full p-2 border border-gray-300">
-                        <ShoppingCart className="w-7 h-7 text-gray-700" />
+                    <a onClick={() => setIsCheckBill(true)} className="relative bg-white shadow-lg rounded-full p-2 border border-gray-300 hover:bg-gray-100 hover:shadow-xl transition duration-300">
+                        <ShoppingCart className="w-7 h-7 text-gray-700 hover:text-gray-900" />
                         <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md">
                             <span className="text-xs font-bold">0</span>
                         </div>
-                    </div>
+                    </a>
                 </div>
+
             </div>
             {isSidebarOpen && (
                 <div
@@ -126,7 +159,7 @@ const CustomerHomePage = () => {
                             onClick={() => handleCategory(item.category_name)}
                             className="w-full sm:w-auto"
                         >
-                            <div className="flex justify-center items-center bg-white p-4 h-16 border-4 rounded-2xl border-gray-400 hover:border-green-600 group shadow-lg transition-all duration-300 transform hover:scale-105 flex-col md:flex-row sm:items-center">
+                            <div className="flex justify-center items-center bg-white p-4 h-16 border-4 rounded-2xl border-gray-400 hover:border-green-600 group shadow-lg transition-all duration-300 transform hover:scale-105 flex-col sm:items-center">
                                 {item.category_name === 'เนื้อสัตว์' && <Restaurant className="text-2xl text-red-600 group-hover:text-red-800 transition-all duration-200" />}
                                 {item.category_name === 'ผัก' && <Grass className="text-2xl text-green-600 group-hover:text-green-800 transition-all duration-200" />}
                                 {item.category_name === 'เส้นและแป้ง' && <Kitchen className="text-2xl text-yellow-600 group-hover:text-yellow-800 transition-all duration-200" />}
@@ -145,7 +178,7 @@ const CustomerHomePage = () => {
             {showReset && (
                 <div className="mb-4">
                     <button
-                        onClick={resetFilter}
+                        onClick={resetMenuSearch}
                         className="mt-4 p-2 bg-gray-300 rounded-xl hover:bg-gray-400 text-gray-700"
                     >
                         <ArrowBack />

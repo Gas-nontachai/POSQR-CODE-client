@@ -1,7 +1,7 @@
 import { Close, Restaurant, Add, Remove } from '@mui/icons-material';
 import { Skeleton, Dialog, AppBar, Grid, Toolbar, Button, ListItemText, ListItem, Divider, List } from '@mui/material';
-import { Menu } from "@/types/types";
-import { useMenu } from '@/hooks/useMenu';
+import { Cart } from "@/types/types";
+import { useCart } from '@/hooks/hooks';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import { API_URL } from "@/utils/config";
@@ -11,9 +11,9 @@ interface ShowMenuDetailProps {
 }
 
 const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
-    
-    const { getMenuBy } = useMenu();
-    const [menuItems, setMenuItems] = useState<Menu[]>([]);
+
+    const { getCartBy } = useCart();
+    const [cartItem, setCartItem] = useState<Cart[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -23,8 +23,10 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
     const fetchMenu = async () => {
         try {
             setLoading(true);
-            const res = await getMenuBy();
-            setMenuItems(res);
+            const res = await getCartBy({ cart_status: 'active' });
+            console.log("res", res);
+            
+            setCartItem(res);
         } catch (error) {
             console.error(error);
         } finally {
@@ -47,11 +49,11 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
                     <Skeleton variant="rectangular" width="100%" height={300} />
                 ) : (
                     <Grid container spacing={3}>
-                        {menuItems.map((item) => (
+                        {cartItem.map((item) => (
                             <Grid item xs={12} key={item.menu_id}>
                                 <List className="w-full h-auto">
                                     <ListItem alignItems="flex-start" className="flex justify-between">
-                                        <img
+                                        {/* <img
                                             src={`${API_URL}${item.menu_img}`}
                                             alt={item.menu_name}
                                             className="w-24 h-24 object-cover rounded"
@@ -60,7 +62,7 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
                                             className='ml-5'
                                             primary={item.menu_name}
                                             secondary={`฿ ${item.menu_price.toFixed(2)}`}
-                                        />
+                                        /> */}
                                         <div className="flex items-center gap-4 bg-slate-100 rounded-full">
                                             <button className="bg-[#bdbdbd] hover:bg-[#acabab] text-white px-1 py-1 font-bold rounded shadow-md transform hover:scale-105 transition duration-300">
                                                 <Remove className="w-5 h-5" />
@@ -92,6 +94,5 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
             </div>
         </Dialog>
     );
-};
-
+}; 
 export default CheckBill;
