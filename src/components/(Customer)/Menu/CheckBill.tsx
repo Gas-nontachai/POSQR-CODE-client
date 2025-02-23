@@ -11,9 +11,9 @@ interface ShowMenuDetailProps {
 }
 
 const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
+    
     const { getMenuBy } = useMenu();
     const [menuItems, setMenuItems] = useState<Menu[]>([]);
-    const [cart, setCart] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -30,29 +30,6 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const addToCart = (item: Menu) => {
-        const existingItem = cart.find(cartItem => cartItem.menu_id === item.menu_id);
-        if (existingItem) {
-            existingItem.quantity += 1;
-        } else {
-            setCart([...cart, { ...item, quantity: 1 }]);
-        }
-    };
-
-    const removeFromCart = (item: Menu) => {
-        const existingItem = cart.find(cartItem => cartItem.menu_id === item.menu_id);
-        if (existingItem && existingItem.quantity > 1) {
-            existingItem.quantity -= 1;
-            setCart([...cart]);
-        } else {
-            setCart(cart.filter(cartItem => cartItem.menu_id !== item.menu_id));
-        }
-    };
-
-    const getTotal = () => {
-        return cart.reduce((total, item) => total + item.menu_price * item.quantity, 0);
     };
 
     return (
@@ -80,10 +57,11 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
                                             className="w-24 h-24 object-cover rounded"
                                         />
                                         <ListItemText
+                                            className='ml-5'
                                             primary={item.menu_name}
                                             secondary={`฿ ${item.menu_price.toFixed(2)}`}
                                         />
-                                        <div className="flex items-center gap-4 bg-slate-200 rounded-full">
+                                        <div className="flex items-center gap-4 bg-slate-100 rounded-full">
                                             <button className="bg-[#bdbdbd] hover:bg-[#acabab] text-white px-1 py-1 font-bold rounded shadow-md transform hover:scale-105 transition duration-300">
                                                 <Remove className="w-5 h-5" />
                                             </button>
@@ -101,7 +79,7 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
                 )}
             </div>
             <div className="bg-gray-100 w-full p-4 shadow-xl flex flex-col items-center">
-                <span className='font-normal mb-2'>ยอดรวม: {getTotal().toFixed(2)} ฿ </span>
+                <span className='font-normal mb-2'>ยอดรวม: 120 ฿ </span>
                 <Button
                     variant="contained"
                     color="success"
