@@ -17,7 +17,7 @@ export const useCategory = () => {
 
     return {
         generateCategoryID: (): Promise<string> => fetchData("/generateCategoryID"),
-        getCategoryBy: (): Promise<Category[]> => fetchData("/getCategoryBy"),
+        getCategoryBy: (data?: any): Promise<Category[]> => fetchData("/getCategoryBy", data),
         getCategoryByID: (data: { category_id: string }): Promise<Category> => fetchData("/getCategoryByID", data),
         updateCategoryBy: (data: Category): Promise<Category> => fetchData("/updateCategoryBy", data),
         insertCategory: (data: Category): Promise<Category> => fetchData("/insertCategory", data),

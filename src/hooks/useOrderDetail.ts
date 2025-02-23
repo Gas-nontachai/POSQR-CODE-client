@@ -20,7 +20,7 @@ export const useOrderDetail = () => {
     };
     return {
         generateOrderDetailID: (): Promise<string> => fetchData("/generateOrderDetailID"),
-        getOrderDetailBy: (): Promise<OrderDetail[]> => fetchData("/getOrderDetailBy"),
+        getOrderDetailBy: (data?: any): Promise<OrderDetail[]> => fetchData("/getOrderDetailBy",data),
         getOrderDetailByID: (data: { orderdetail_id: string }): Promise<OrderDetail> => fetchData("/getOrderDetailByID", data),
         updateOrderDetailBy: (data: OrderDetail): Promise<OrderDetail> => fetchData("/updateOrderDetailBy", data),
         insertOrderDetail: (data: OrderDetail): Promise<OrderDetail> => fetchData("/insertOrderDetail", data),

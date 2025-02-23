@@ -36,7 +36,7 @@ export const useMenu = () => {
 
     return {
         generateMenuID: (): Promise<string> => fetchData("/generateMenuID"),
-        getMenuBy: (): Promise<Menu[]> => fetchData("/getMenuBy"),
+        getMenuBy: (data?: any): Promise<Menu[]> => fetchData("/getMenuBy", data),
         getMenuByID: (data: { menu_id: string }): Promise<Menu> => fetchData("/getMenuByID", data),
         updateMenuBy: (data: Menu): Promise<Menu> => fetchData("/updateMenuBy", data, true),
         insertMenu: (data: Menu): Promise<Menu> => fetchData("/insertMenu", data, true),

@@ -36,7 +36,7 @@ export const useUser = () => {
 
     return {
         generateUserID: (): Promise<string> => fetchData("/generateUserID"),
-        getUserBy: (): Promise<User[]> => fetchData("/getUserBy"),
+        getUserBy:(data?: any): Promise<User[]> => fetchData("/getUserBy",data),
         getUserByID: (data: { user_id: string }): Promise<User> => fetchData("/getUserByID", data),
         updateUserBy: (data: User): Promise<User> => fetchData("/updateUserBy", data, true),
         insertUser: (data: User): Promise<User> => fetchData("/insertUser", data, true),

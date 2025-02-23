@@ -1,32 +1,39 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { Menu, MenuItem, Button, Avatar, IconButton, Tooltip, ListItemIcon, Divider } from "@mui/material";
-import {
-  Edit, Delete, MenuOpen, People, CurrencyBitcoin, PersonOff, QrCode, Payments, PersonAdd, Settings, Logout
-} from '@mui/icons-material';
-import { useTable } from "@/hooks/useTable";
-import { useTableStatus } from "@/hooks/useTableStatus";
-import { Table } from "@/types/table";
-import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import AddTableForm from "@/components/(Manage)/Table/AddTableForm";
 import UpdateTableForm from "@/components/(Manage)/Table/UpdateTableForm";
-import QRCodeGenerator from '@/utils/qrcode-generater';
+import DetailTable from "@/components/(Manage)/Table/DetailTable";
+import OpenTable from "@/components/(Manage)/Table/OpenTable";
+import React, { useState, useEffect, useRef } from "react";
+import { useTable } from "@/hooks/useTable";
+import { useTableStatus, useBill, usePayment } from "@/hooks/hooks";
+import { Table, Bill, Payment } from "@/types/types";
+
+import { Menu, MenuItem, Button, Avatar, IconButton, Tooltip, Dialog, } from "@mui/material";
+import {
+  Edit, Delete, MenuOpen, People, CurrencyBitcoin, QrCode, Payments, Details
+} from '@mui/icons-material';
+
+const { getTableBy, insertTable, updateTableBy, deleteTableBy } = useTable();
+const { getTableStatusBy } = useTableStatus();
+const { getBillBy, updateBillBy } = useBill();
+const { getPaymentBy, updatePaymentBy } = usePayment();
 
 const ManageTablePage = () => {
-  const { getTableBy, insertTable, updateTableBy, deleteTableBy } = useTable();
-  const { getTableStatusBy } = useTableStatus();
+  const [openTableDialog, setOpenTableDialog] = useState(false);
+  const [openTableDetailDialog, setOpenTableDetailDialog] = useState(false);
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
-  const [openQRCodeDialog, setOpenQRCodeDialog] = useState(false);
-  const [openPromtPayDialog, setOpenPromtPayDialog] = useState(false);
-  const [openCashDialog, setOpenCashDialog] = useState(false);
+
   const [loading, SetLoading] = useState<boolean>(true)
   const [anchorEl, setAnchorEl] = useState(null);
+  const [state, setState] = useState({
+    currentLink: '',
+    currentTableID: '',
+    currentTableNumber: '',
+  });
 
   const open = Boolean(anchorEl);
-  const current_link = useRef('')
-  const current_table_id = useRef('')
   const statusItems = useRef<{ value: string; title: string }[]>([]);
 
   const [newTable, setNewTable] = useState<Table[]>([{
@@ -35,16 +42,39 @@ const ManageTablePage = () => {
     table_status: '',
     add_date: new Date()
   }]);
+
+  const [newBill, setNewBill] = useState<Bill>({
+    bill_id: '',
+    table_id: '',
+    table_number: '',
+    amount_customer: '',
+    bill_status: '',
+    qr_code: '',
+    start_time: '',
+    expired_time: '',
+    add_date: ''
+  });
+
+  const [newPayment, setNewPayment] = useState<Payment>({
+    payment_id: '',
+    bill_id: '',
+    table_id: '',
+    amount_total: 0,
+    payment_method: '',
+    payment_status: '',
+    payment_time: ''
+  });
+
   const tableToUpdate = useRef<Table>({
     table_id: '',
     table_number: '',
     table_status: '',
     add_date: ''
   })
+
   const manageItems = [
     { text: "Table Number", },
     { text: "Status", },
-    { text: "QR Code", },
     { text: "Action", },
   ]
 
@@ -52,6 +82,16 @@ const ManageTablePage = () => {
     fetchTableStatusOption()
     fetchData();
   }, []);
+
+  useEffect(() => {
+  }, [state, newBill, newPayment]);
+
+  const updateState = (key: any, value: any) => {
+    setState(prevState => ({
+      ...prevState,
+      [key]: value,
+    }));
+  };
 
   const fetchTableStatusOption = async () => {
     const res = await getTableStatusBy();
@@ -68,9 +108,32 @@ const ManageTablePage = () => {
       console.error("Error fetching table data:", error);
     } finally {
       SetLoading(false)
-      setOpenUpdateDialog(false)
-      setOpenAddDialog(false)
-      setOpenQRCodeDialog(false)
+    }
+  };
+
+  const fetchBill = async (table_id: string, bill_status: string = "un-paid") => {
+    try {
+      const res = await getBillBy({
+        $and: [{ table_id }, { bill_status }],
+      });
+      setNewBill(res[0]);
+    } catch (error) {
+      console.error("Error fetching bill data:", error);
+    } finally {
+      SetLoading(false);
+    }
+  };
+
+  const fetchPayment = async (table_id: string, payment_status: string = "un-paid") => {
+    try {
+      const res = await getPaymentBy({
+        $and: [{ table_id }, { payment_status }],
+      });
+      setNewPayment(res[0]);
+    } catch (error) {
+      console.error("Error fetching payment data:", error);
+    } finally {
+      SetLoading(false);
     }
   };
 
@@ -169,18 +232,42 @@ const ManageTablePage = () => {
     };
     updateTableData.table_status = table_status
     await onUpdate(updateTableData)
-    setOpenPromtPayDialog(false)
-    setOpenCashDialog(false)
+    setOpenTableDialog(false)
   }
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setNewTable((prevTable) => [
-      {
-        ...prevTable[0],
-        table_status: event.target.value,
-      },
-    ]);
-  };
+  const onGetBill = async (payment_method: string = "cash") => {
+    await fetchBill(state.currentTableID, "pre-paid")
+    await fetchPayment(state.currentTableID, "pre-paid")
+    const updatedBill = {
+      ...newBill,
+      bill_id: newBill.bill_id,
+      bill_status: "paid"
+    };
+    const updatedPayment = {
+      ...newPayment,
+      payment_id: newPayment.payment_id,
+      payment_method: payment_method,
+      payment_status: "paid"
+    };
+    Swal.fire({
+      text: "ได้รับเงินจากลูกค้าเรียบร้อย?",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonText: 'ได้รับเงินเรียบร้อย',
+      customClass: {
+        popup: 'custom-swal',
+      }
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await updateBillBy(updatedBill)
+        await updatePaymentBy(updatedPayment)
+        changeTableStatus(state.currentTableID, "ว่าง");
+      }
+    });
+  }
 
   const handleClick = (event: any) => {
     setAnchorEl(event.currentTarget);
@@ -219,7 +306,7 @@ const ManageTablePage = () => {
                       โต๊ะ {item.table_number}
                     </div>
                     <div>
-                      <Tooltip title="Account settings">
+                      <Tooltip title="จัดการข้อมูลโต๊ะ">
                         <IconButton
                           onClick={handleClick}
                           size="small"
@@ -296,114 +383,115 @@ const ManageTablePage = () => {
                       ))}
                     </select>
                   </td>
-                  <td>
+                  <td className="px-4 py-2 flex justify-around">
                     {(() => {
                       switch (item.table_status) {
-                        case 'ว่าง':
-                          return (
-                            <div>
-                              <PersonOff /> <span className="ml-3">ยังไม่มีลูกค้าใช้งาน</span>
-                            </div>
-                          );
-                        case 'กำลังใช้งาน':
+                        case "ว่าง":
                           return (
                             <Button
                               variant="contained"
-                              onClick={() => {
-                                current_link.current = `https://www.google.com/search?q=${item.table_number}`;
-                                setOpenQRCodeDialog(!openQRCodeDialog);
-                              }}
                               color="success"
-                              className="hover:bg-green-500 text-white font-bold py-2 px-4 rounded"
+                              onClick={async () => {
+                                updateState("currentTableID", item.table_id);
+                                updateState("currentTableNumber", item.table_number);
+                                setOpenTableDialog(true);
+                              }}
                             >
-                              QR Code Gen
+                              <QrCode /> <span className="ml-3">เปิดโต๊ะ</span>
                             </Button>
                           );
-                        case 'กำลังรอเรียกเก็บเงิน':
-                          return (
-                            <Button
-                              variant="contained"
-                              onClick={() => {
-                                current_link.current = `https://www.google.com/search?q=${item.table_number}`;
-                                setOpenQRCodeDialog(!openQRCodeDialog);
-                              }}
-                              color="success"
-                              className="hover:bg-green-500 text-white font-bold py-2 px-4 rounded"
-                            >
-                              ใบเสร็จเก็บเงิน
-                            </Button>
-                          );
-                        default:
-                          return null;
-                      }
-                    })()}
-                  </td>
 
-                  <td className="px-4 py-2">
-                    {(() => {
-                      switch (item.table_status) {
-                        case 'ว่าง':
+                        case "จองแล้ว":
                           return (
                             <Button
                               variant="contained"
                               color="success"
-                              onClick={() => { changeTableStatus(item.table_id, "กำลังใช้งาน") }}
+                              onClick={() => {
+                                changeTableStatus(item.table_id, "กำลังใช้งาน");
+                              }}
                             >
                               <People /> <span className="ml-3">เปิดโต๊ะ</span>
                             </Button>
                           );
-                        case 'จองแล้ว':
-                          return (
-                            <Button
-                              variant="contained"
-                              color="success"
-                              onClick={() => { changeTableStatus(item.table_id, "กำลังใช้งาน") }}
-                            >
-                              <People /> <span className="ml-3">เปิดโต๊ะ</span>
-                            </Button>
-                          );
-                        case 'กำลังใช้งาน':
-                          return (
-                            <Button
-                              variant="contained"
-                              color="success"
-                              onClick={() => { changeTableStatus(item.table_id, "กำลังรอเรียกเก็บเงิน") }}
-                            >
-                              <CurrencyBitcoin /> <span className="ml-3">เก็บเงิน</span>
-                            </Button>
-                          );
-                        case 'กำลังรอเรียกเก็บเงิน':
+
+                        case "กำลังใช้งาน":
                           return (
                             <div className="flex justify-evenly">
                               <Button
                                 variant="contained"
                                 color="success"
                                 onClick={() => {
-                                  current_table_id.current = item.table_id
-                                  setOpenPromtPayDialog(true)
+                                  Swal.fire({
+                                    title: "คุณแน่ใจไหม?",
+                                    text: "การเปลี่ยนสถานะนี้จะไม่สามารถย้อนกลับได้!",
+                                    icon: "warning",
+                                    showCancelButton: true,
+                                    confirmButtonColor: "#3085d6",
+                                    cancelButtonColor: "#d33",
+                                    confirmButtonText: "ใช่, เปลี่ยนสถานะเลย!",
+                                    cancelButtonText: "ยกเลิก",
+                                  }).then(async (result) => {
+                                    if (result.isConfirmed) {
+                                      try {
+                                        const updatedBill = {
+                                          ...newBill,
+                                          bill_id: newBill.bill_id,
+                                          bill_status: "pre-paid"
+                                        };
+                                        const updatedPayment = {
+                                          ...newPayment,
+                                          payment_id: newPayment.payment_id,
+                                          payment_status: "pre-paid"
+                                        };
+                                        await updateBillBy(updatedBill)
+                                        await updatePaymentBy(updatedPayment)
+                                        await changeTableStatus(
+                                          item.table_id,
+                                          "กำลังรอเรียกเก็บเงิน"
+                                        );
+                                      } catch (error) {
+                                        Swal.fire(
+                                          "เกิดข้อผิดพลาด!",
+                                          "มีข้อผิดพลาดในการเปลี่ยนสถานะโต๊ะ.",
+                                          "error"
+                                        );
+                                      }
+                                    }
+                                  });
                                 }}
                               >
-                                <QrCode /> <span className="ml-3">แสกน QR COde รับเงิน</span>
+                                <CurrencyBitcoin /> <span className="ml-3">เปลี่ยนสถานะเป็น "เก็บเงิน"</span>
                               </Button>
-                              <Button
-                                variant="contained"
-                                color="success"
-                                onClick={() => {
-                                  current_table_id.current = item.table_id
-                                  setOpenCashDialog(true)
-                                }}
-                              >
-                                <Payments /> <span className="ml-3">รับเงินสด</span>
-                              </Button>
-
                             </div>
                           );
                         default:
                           return null;
                       }
                     })()}
+                    {!["ว่าง", "จองแล้ว"].includes(item.table_status) && (
+                      <div>
+                        {(() => {
+                          let status = 'un-paid';
+                          if (["กำลังรอเรียกเก็บเงิน"].includes(item.table_status)) {
+                            status = 'pre-paid';
+                          }
+                          return (
+                            <Button
+                              variant="contained"
+                              color="success"
+                              onClick={async () => {
+                                await fetchBill(item.table_id, status);
+                                await fetchPayment(item.table_id, status);
+                                setOpenTableDetailDialog(true);
+                              }}
+                            >
+                              <Details /> <span className="ml-3">ดูรายละเอียด</span>
+                            </Button>
+                          );
+                        })()}
+                      </div>
+                    )}
                   </td>
-
                 </tr>
               ))}
             </tbody>
@@ -411,153 +499,78 @@ const ManageTablePage = () => {
         </div>
       </div>
 
-      {openAddDialog && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 10 }}
-          transition={{ duration: 0.1 }}
-          className="my-box"
-        >
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenAddDialog(false)} >
-            <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => setOpenAddDialog(false)}
-                className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
-              > X </button>
-              <AddTableForm count_table={newTable.length} statusItems={statusItems.current} onSubmit={onSubmit} />
-            </div>
+      <Dialog
+        open={openAddDialog}
+        onClose={() => setOpenAddDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth={true}
+        maxWidth="md"
+      >
+        <div className="bg-white p-6 rounded-lg relative" onClick={(e) => e.stopPropagation()}>
+          <button onClick={() => setOpenAddDialog(false)}
+            className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
+          > X </button>
+          <div>
+            <AddTableForm count_table={newTable.length} statusItems={statusItems.current} onSubmit={onSubmit} />
           </div>
-        </motion.div>
-      )
-      }
+        </div>
+      </Dialog>
 
-      {openUpdateDialog && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 10 }}
-          transition={{ duration: 0.1 }}
-          className="my-box"
-        >
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenUpdateDialog(false)} >
-            <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => setOpenUpdateDialog(false)}
-                className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
-              > X </button>
-              <UpdateTableForm table_data={tableToUpdate.current} statusItems={statusItems.current} onSubmit={onUpdate} />
-            </div>
+      <Dialog
+        open={openUpdateDialog}
+        onClose={() => setOpenUpdateDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth={true}
+        maxWidth="md"
+      >
+        <div className="bg-white p-6 rounded-lg relative" onClick={(e) => e.stopPropagation()}>
+          <button onClick={() => setOpenUpdateDialog(false)}
+            className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
+          > X </button>
+          <div>
+            <UpdateTableForm table_data={tableToUpdate.current} statusItems={statusItems.current} onSubmit={onUpdate} />
           </div>
-        </motion.div>
-      )}
+        </div>
+      </Dialog>
 
-      {openQRCodeDialog && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 10 }}
-          transition={{ duration: 0.1 }}
-          className="my-box"
-        >
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenQRCodeDialog(false)} >
-            <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => setOpenQRCodeDialog(false)}
-                className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
-              > X </button>
-              <div className="flex justify-center items-center flex-col">
-                <QRCodeGenerator link={current_link.current} size={500} />
-                <a href={current_link.current} target="_blank" rel="noopener noreferrer" className="mt-5">{current_link.current}</a>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
+      <Dialog
+        open={openTableDetailDialog}
+        onClose={() => setOpenTableDetailDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth
+        maxWidth="md"
+      >
+        <div className="bg-white p-6 rounded-lg relative" onClick={(e) => e.stopPropagation()} >
+          <Button onClick={() => setOpenTableDetailDialog(false)}
+            className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5">
+            X
+          </Button>
+          <DetailTable billData={newBill} paymentData={newPayment} show_qr_code={
+            newBill.bill_status === "un-paid" ? true : newBill.bill_status === "pre-paid" ? false : false
+          } updateState={updateState} onGetBill={onGetBill} setDetailDialog={() => setOpenTableDetailDialog(false)} ></DetailTable>
+        </div>
+      </Dialog>
 
-      {openPromtPayDialog && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 10 }}
-          transition={{ duration: 0.1 }}
-          className="my-box"
-        >
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenPromtPayDialog(false)} >
-            <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => setOpenPromtPayDialog(false)}
-                className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
-              > X </button>
-              <div className="flex justify-center items-center flex-col">
-                <QRCodeGenerator link={current_link.current} size={500} />
-                <span className="mt-5">QR Code พร้อมเพย์</span>
-                <Button
-                  variant="contained"
-                  color="success"
-                  onClick={() => {
-                    Swal.fire({
-                      text: "ได้รับเงินจากลูกค้าเรียบร้อย?",
-                      icon: 'question',
-                      showCancelButton: true,
-                      confirmButtonColor: '#3085d6',
-                      cancelButtonColor: '#d33',
-                      cancelButtonText: 'ยกเลิก',
-                      confirmButtonText: 'ได้รับเงินเรียบร้อย'
-                    }).then((result) => {
-                      if (result.isConfirmed) {
-                        changeTableStatus(current_table_id.current, "ว่าง");
-                      }
-                    });
-                  }}
-                >
-                  <Payments /> <span className="ml-3">ชำระเงิน</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {openCashDialog && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 10 }}
-          transition={{ duration: 0.1 }}
-          className="my-box"
-        >
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={() => setOpenCashDialog(false)} >
-            <div className="bg-white p-6 rounded-lg w-4/5 max-w-4xl relative" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => setOpenCashDialog(false)}
-                className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
-              > X </button>
-              <div className="flex justify-center items-center flex-col">
-                <span className="mt-5">รับเงินสด</span>
-                <Button
-                  variant="contained"
-                  color="success"
-                  onClick={() => {
-                    Swal.fire({
-                      text: "ได้รับเงินจากลูกค้าเรียบร้อย?",
-                      icon: 'question',
-                      showCancelButton: true,
-                      confirmButtonColor: '#3085d6',
-                      cancelButtonColor: '#d33',
-                      cancelButtonText: 'ยกเลิก',
-                      confirmButtonText: 'ได้รับเงินเรียบร้อย'
-                    }).then((result) => {
-                      if (result.isConfirmed) {
-                        changeTableStatus(current_table_id.current, "ว่าง");
-                      }
-                    });
-                  }}
-                >
-                  <Payments /> <span className="ml-3">รับเงินสด</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      )}
+      <Dialog
+        open={openTableDialog}
+        onClose={() => setOpenTableDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        fullWidth={true}
+        maxWidth="md"
+      >
+        <div className="bg-white p-6 rounded-lg relative" onClick={(e) => e.stopPropagation()}>
+          <button onClick={() => setOpenTableDialog(false)}
+            className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded absolute top-5 right-5"
+          > X </button>
+          <OpenTable billData={newBill} currentTableNumber={state.currentTableNumber} currentTableID={state.currentTableID} changeTableStatus={changeTableStatus}></OpenTable>
+        </div>
+      </Dialog>
     </div >
   );
 };
 
-export default ManageTablePage;
+export default ManageTablePage; 
