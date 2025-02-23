@@ -278,23 +278,23 @@ const ManageTablePage = () => {
   };
 
   return (
-    <div>
+    <>
       {loading && (
         <div className=" flex justify-center">
           <span className="text-xl font-semibold text-gray-700">Loading...</span>
         </div>
       )}
-      <div className="container mx-auto mt-10">
+      <div className="container mx-auto p-6 w-3/4 bg-white shadow-lg rounded-lg">
         <div className="flex justify-end mb-4">
           <button onClick={() => setOpenAddDialog(!openAddDialog)}
-            className=" bg-green-500 hover:bg-green-700 p-2 rounded text-white font-bold">+ เพิ่มโต๊ะ</button>
+            className=" bg-green-500 hover:bg-green-600 p-2 rounded text-white font-bold">Add Table</button>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border-collapse">
-            <thead>
-              <tr className="bg-gray-100 text-left" >
+          <table className="min-w-full table-auto border-collapse text-sm">
+            <thead className="bg-gray-600 text-white uppercase">
+              <tr>
                 {manageItems.map(item => (
-                  <th className="px-4 py-2 border" key={item.text}>{item.text}</th>
+                  <th className="px-6 py-3 text-left font-semibold" key={item.text}>{item.text}</th>
                 ))}
               </tr>
             </thead>
@@ -569,7 +569,7 @@ const ManageTablePage = () => {
           <OpenTable billData={newBill} currentTableNumber={state.currentTableNumber} currentTableID={state.currentTableID} changeTableStatus={changeTableStatus}></OpenTable>
         </div>
       </Dialog>
-    </div >
+    </>
   );
 };
 

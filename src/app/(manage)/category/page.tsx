@@ -111,7 +111,6 @@ const ManageCategoryPage: React.FC = () => {
                     }
                 }
             });
-
             if (newCategoryName) {
                 const updatedCategory = { ...categoryToUpdate, category_name: newCategoryName };
                 await updateCategoryBy(updatedCategory);
@@ -122,66 +121,79 @@ const ManageCategoryPage: React.FC = () => {
     }
 
     return (
-        <div className="container mx-auto my-10 p-5 max-w-3xl bg-white shadow-lg rounded-lg">
-            <h1 className=" border-gray-200 bg-slate-100 text-gray-900 text-center p-4 rounded-xl text-2xl font-bold flex items-center justify-center gap-2">
-                <FastfoodIcon className="w-10 h-10" />
-                จัดการหมวดหมู่อาหาร
-            </h1>
-            <div className="flex gap-3 mt-5">
-                <input
-                    type="text"
-                    name="category_name"
-                    value={newCategory.category_name}
-                    onChange={onChangeInput}
-                    placeholder="เพิ่มหมวดหมู่อาหารใหม่"
-                    className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                    onClick={onSubmit}
-                    className="bg-green-500 flex text-white px-5 py-2 rounded-md hover:bg-green-600"
-                >
-                    <Add /> เพิ่ม
-                </button>
+        <>
+            <div className="container mx-auto p-6 w-3/4 bg-white shadow-lg rounded-lg">
+                <div className="flex justify-between">
+                    <h1 className="text-xl font-bold text-gray-700 flex items-center">
+                        <FastfoodIcon className="w-10 h-10 mr-2" />
+                        Category
+                    </h1>
+                </div>
+                <div className="mt-5 flex">
+                    <input
+                        type="text"
+                        value={newCategory.category_name}
+                        onChange={onChangeInput}
+                        placeholder="Enter new table status"
+                        className="p-2 w-full border border-gray-300 rounded-l-md"
+                    />
+                    <button
+                        onClick={onSubmit}
+                        className="bg-green-500 flex items-center text-white font-bold px-5 py-2 rounded-r-md hover:bg-green-600"
+                    >
+                        Add
+                    </button>
+                </div>
+                <div className="overflow-x-auto mt-5">
+                    <table className="min-w-full table-auto border-collapse text-sm">
+                        <thead className="bg-gray-600 text-white uppercase">
+                            <tr>
+                                <th className="px-6 py-3 text-left font-semibold">category_id</th>
+                                <th className="px-6 py-3 text-left font-semibold">category_name</th>
+                                <th className="px-6 py-3 text-left font-semibold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={3} className="text-center py-10">
+                                        <CircularProgress />
+                                    </td>
+                                </tr>
+                            ) : FetchCate.length > 0 ? (
+                                FetchCate.map((item) => (
+                                    <tr key={item.category_id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4 text-gray-800">{item.category_id}</td>
+                                        <td className="px-6 py-4 text-gray-600">{item.category_name}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => onUpdate(item.category_id)}
+                                                    className="bg-orange-400 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => onDelete(item.category_id)}
+                                                    className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded-lg shadow-md"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={3} className="text-gray-500 text-center py-4">ไม่มีหมวดหมู่อาหาร</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
-            <h3 className="text-lg flex gap-2 font-semibold mt-5 mb-2 text-blue-500">
-                <FastfoodIcon />รายการหมวดหมู่อาหาร
-            </h3>
-            {loading ? (
-                <div className="flex justify-center items-center my-10">
-                    <CircularProgress />
-                </div>
-            ) : (
-                <div className="bg-gray-100 p-3 rounded-md h-auto max-h-96 overflow-y-auto">
-                    {FetchCate.length > 0 ? (
-                        <ul>
-                            {FetchCate.map((item) => (
-                                <li
-                                    key={item.category_id}
-                                    className="flex justify-between items-center bg-white p-2 rounded-md mb-2 shadow"
-                                >
-                                    <span className="text-gray-700">{item.category_name}</span>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => onUpdate(item.category_id)}
-                                            className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600"
-                                        >
-                                            แก้ไข
-                                        </button>
-                                        <button
-                                            onClick={() => onDelete(item.category_id)}
-                                            className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                                        >ลบ
-                                        </button>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-gray-500 text-center">ไม่มีหมวดหมู่อาหาร</p>
-                    )}
-                </div>
-            )}
-        </div >
+        </>
     );
 };
 

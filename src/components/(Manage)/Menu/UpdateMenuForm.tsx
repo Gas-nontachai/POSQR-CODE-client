@@ -49,12 +49,12 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
         setFormData((prevFormData) => {
             const newFormData = {
                 ...prevFormData,
-                [e.target.name]: e.target.value,
+                [e.target.name]: e.target.value || '',
             };
             return newFormData;
         });
     };
-    
+
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -84,16 +84,16 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
 
     return (
         <>
-            <h2 className="text-xl mb-4">Update User</h2>
+            <h2 className="text-xl mb-4">Update Menu</h2>
             <form onSubmit={onSubmit}>
                 <div className="mb-4">
                     <label htmlFor="menu_name" className="block text-sm font-medium text-gray-700">
-                        menu_name
+                        Menu Name
                     </label>
                     <input
                         type="text"
                         name="menu_name"
-                        value={formData.menu_name || ''}
+                        value={formData.menu_name || ''}  
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
@@ -101,12 +101,12 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                 </div>
                 <div className="mb-4">
                     <label htmlFor="menu_price" className="block text-sm font-medium text-gray-700">
-                        menu_price
+                        Menu Price
                     </label>
                     <input
                         type="number"
                         name="menu_price"
-                        value={formData.menu_price}
+                        value={formData.menu_price || 0}  
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
@@ -114,20 +114,20 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                 </div>
                 <div className="mb-4">
                     <label htmlFor="menu_amount" className="block text-sm font-medium text-gray-700">
-                        menu_amount
+                        Menu Amount
                     </label>
                     <input
                         type="number"
                         name="menu_amount"
-                        value={formData.menu_amount}
+                        value={formData.menu_amount || 0}  
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
                     />
                 </div>
                 <div className="mb-4">
-                    <label htmlFor="user_img" className="block text-sm font-medium text-gray-700">
-                        menu_img
+                    <label htmlFor="menu_img" className="block text-sm font-medium text-gray-700">
+                        Menu Image
                     </label>
                     {formData.menu_img && (
                         <div className="mb-2">
@@ -149,7 +149,7 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                     <label className="block text-sm font-medium text-gray-700">Menu Status</label>
                     <select
                         name="menu_status"
-                        value={formData.menu_status || ''}
+                        value={formData.menu_status || ''} // Prevent undefined
                         onChange={onChange}
                         required
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -164,11 +164,11 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                 </div>
                 <div className="mb-4">
                     <label htmlFor="category_name" className="block text-sm font-medium text-gray-700">
-                        category_name
+                        Category Name
                     </label>
                     <select
                         name="category_name"
-                        value={formData.category_name}
+                        value={formData.category_name || ''}  
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required

@@ -42,15 +42,14 @@ export default function RootLayout({
 
             {/* Content with margin for sidebar */}
             <div className="flex flex-col w-full">
-              <AppBar position="sticky" sx={{ backgroundColor: "#1f2937" }}>
+              <AppBar position="sticky" sx={{ backgroundColor: "#1f2937", zIndex: 2 }}>
                 <Toolbar>
                   <IconButton edge="start" color="inherit" onClick={toggleSidebar}>
                     <MenuIcon />
                   </IconButton>
                   <span className="text-2xl font-bold">GGas</span>
                 </Toolbar>
-              </AppBar>
-
+              </AppBar> 
               {/* Main Content */}
               <div >{children}</div>
             </div>
