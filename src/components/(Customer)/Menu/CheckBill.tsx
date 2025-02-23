@@ -11,8 +11,9 @@ interface ShowMenuDetailProps {
 }
 
 const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
+    
     const { getMenuBy } = useMenu();
-    const [menuItems, setMenuItems] = useState<Menu[]>([]); 
+    const [menuItems, setMenuItems] = useState<Menu[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -29,7 +30,7 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
         } finally {
             setLoading(false);
         }
-    }; 
+    };
 
     return (
         <Dialog fullScreen open={true} onClose={onClose}>

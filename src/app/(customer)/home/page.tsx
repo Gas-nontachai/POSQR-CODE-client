@@ -1,6 +1,9 @@
 "use client"
 import { useState, useEffect, useRef } from "react";
-import { AlignHorizontalLeft, Search, Restaurant, Add, Remove, ArrowBack, Fastfood, Grass, LocalDrink, Icecream, Kitchen, LocalBar, Anchor } from '@mui/icons-material';
+import {
+    AlignHorizontalLeft, Search, Restaurant, Add, Remove, ArrowBack, Fastfood, Grass,
+    LocalDrink, Icecream, Kitchen, LocalBar, Anchor, ShoppingCart, AddLocation
+} from '@mui/icons-material';
 import { Skeleton } from "@mui/material";
 import { Category, Menu } from "@/types/types"
 import { API_URL } from "@/utils/config"
@@ -22,12 +25,11 @@ const CustomerHomePage = () => {
     const [categoryItems, setCategoryItems] = useState<Category[]>([]);
     const menu_id = useRef('');
 
+    
 
     useEffect(() => {
         fetchData();
-    }, []);
-
-
+    }, []); 
     const fetchData = async () => {
         try {
             setLoading(true);
@@ -40,8 +42,7 @@ const CustomerHomePage = () => {
         } finally {
             setLoading(false);
         }
-    };
-
+    }; 
     const handleCategory = async (categoryName: string) => {
         setLoading(true);
         setTimeout(async () => {
@@ -63,8 +64,8 @@ const CustomerHomePage = () => {
         }, 200);
     };
 
-
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
     return (
         <div className="container mx-auto p-4 bg-gray-100 min-h-screen">
             <div className="flex justify-between items-center mb-4">
@@ -75,13 +76,23 @@ const CustomerHomePage = () => {
                         type="text"
                         className="pl-10 py-2 rounded-md border border-gray-300"
                         placeholder="Search..."
+
                     />
                 </div>
             </div>
-
-            <div className="flex justify-start flex-col">
-                <h1 className="text-xl font-sans">GGas Nonthachai</h1>
-                <span className="font-extralight mt-2">เสิร์ฟความอร่อยทุกวัน</span>
+            <div className="flex flex-col items-start p-4 bg-white rounded-2xl shadow-md relative">
+                <span className="flex items-center text-xl font-semibold text-gray-800">
+                    <AddLocation className="w-6 h-6 text-red-500 mr-2" /> สุขุมวิท ถ.อะไรไม่รู้
+                </span>
+                <span className="text-gray-500 font-light mt-2">เสิร์ฟความอร่อยทุกวัน</span>
+                <div className="absolute top-3 right-3">
+                    <div className="relative bg-white shadow-lg rounded-full p-2 border border-gray-300">
+                        <ShoppingCart className="w-7 h-7 text-gray-700" />
+                        <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md">
+                            <span className="text-xs font-bold">0</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             {isSidebarOpen && (
                 <div
@@ -131,8 +142,6 @@ const CustomerHomePage = () => {
                     ))}
                 </div>
             </div>
-
-
             {showReset && (
                 <div className="mb-4">
                     <button
@@ -182,18 +191,6 @@ const CustomerHomePage = () => {
                                         </span>
                                     </div>
                                     <h3 className="mt-2 w-full h-9 text-sm font-semibold">{item.menu_name}</h3>
-                                    <div className="flex justify-between">
-                                        <p className="text-green-600 font-bold">฿ {item.menu_price.toFixed(2)}</p>
-                                        <div className="flex items-center gap-4 bg-slate-200 rounded-full">
-                                            <button className="bg-[#bdbdbd] hover:bg-[#acabab] text-white px-1 py-1 font-bold rounded shadow-md transform hover:scale-105 transition duration-300">
-                                                <Remove className='w-5 h-5' />
-                                            </button>
-                                            <span className="text-xl text-gray-700 font-semibold">1</span>
-                                            <button className="bg-[#3fc979] hover:bg-[#3ac473] text-white px-1 py-1 font-bold rounded shadow-md transform hover:scale-105 transition duration-300">
-                                                <Add className='w-5 h-5' />
-                                            </button>
-                                        </div>
-                                    </div>
                                 </div>
                             </a>
                         ))
@@ -211,11 +208,9 @@ const CustomerHomePage = () => {
                     </div>
                 </a>
             )}
-
             {isMenuDetail && (
                 <ShowMenuDetail menu_id={menu_id.current ?? ''} onClose={() => { setIsMenuDetail(false) }} />
             )}
-
             {isCheckBill && (
                 <CheckBill onClose={() => { setIsCheckBill(false) }} />
             )}
