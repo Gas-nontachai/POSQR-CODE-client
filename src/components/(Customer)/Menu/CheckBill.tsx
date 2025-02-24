@@ -1,22 +1,27 @@
 import { Close, Restaurant, Add, Remove, ShoppingCartCheckoutOutlined, InsertChart } from '@mui/icons-material';
-import { Skeleton, Dialog, AppBar, Grid, Toolbar, ListItemText, ListItem, Divider, List, Button } from '@mui/material';
-import { Cart, Menu } from "@/types/types";
+import { Skeleton, Dialog, AppBar, Toolbar, ListItemText, ListItem, Divider, List, Button } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import { Cart, Menu, Order } from "@/types/types";
 import { useCart, useMenu, useOrder } from '@/hooks/hooks';
 import { useEffect, useState } from 'react';
 import React from 'react';
 import { API_URL } from "@/utils/config";
 
 interface ShowMenuDetailProps {
+    table_id: string
+    table_number: string,
+    bill_id: string,
     onClose: () => void;
 }
 
-const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
+const CheckBill: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill_id, onClose }) => {
     const { getCartBy, deleteCartBy } = useCart();
     const { getMenuBy } = useMenu();
     const { insertOrder } = useOrder();
 
     const [cartItem, setCartItem] = useState<Cart[]>([]);
     const [menuItem, setMenuItem] = useState<Menu[]>([]);
+    const [orderItem, setOrderItem] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [totalPrice, setTotalPrice] = useState(0);
 
@@ -34,28 +39,20 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
     const fetchMenu = async () => {
         try {
             setLoading(true);
-            const cartData = await getCartBy({ cart_status: 'active' });
-            const mergedCart = cartData.reduce((acc, item) => {
-                const existingItem = acc.find(i => i.menu_id === item.menu_id);
-                if (existingItem) {
-                    existingItem.cart_amount += item.cart_amount;
-                } else {
-                    acc.push({ ...item });
-                }
-                return acc;
-            }, [] as Cart[]);
-
-            const menu_id = mergedCart.map(item => item.menu_id);
+            const cartData = await getCartBy({
+                $and: [{ cart_status: "active" }, { table_id }],
+            });
+            const menu_id = cartData.map(item => item.menu_id);
             const menuData = await getMenuBy({ menu_id: { $in: menu_id } });
 
-            setCartItem(mergedCart);
+            setCartItem(cartData);
             setMenuItem(menuData);
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false);
         }
-    }; 
+    };
 
     const calculateTotalPrice = (cartData: Cart[], menuData: Menu[]) => {
         let total = 0;
@@ -90,17 +87,16 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
         try {
             const orderData = {
                 order_id: "",
-                table_id: "testID",
+                table_id: table_id,
+                bill_id: bill_id,
                 order_status: 'pending',
-                order_time: new Date(),
-                items: cartItem.map(item => ({
-                    menu_id: item.menu_id,
-                    quantity: item.cart_amount
+                order_items: cartItem.map(item => ({
+                    cart_id: item.cart_id,
                 })),
-                total_price: totalPrice,
+                order_time: '',
             };
-            console.log(orderData);
-            // await insertOrder(orderData);
+            await insertOrder(orderData);
+            await fetchMenu()
             //อย่าพึ่ง insrt ยังไม่ดง table_id มา
         } catch (error) {
             console.error('Error placing order:', error);
@@ -110,8 +106,9 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
     const removeCart = async (e: React.MouseEvent, cart_id: string) => {
         e.preventDefault()
         try {
-            console.log(cart_id); 
-            await deleteCartBy({ cart_id: cart_id }) 
+            console.log(cart_id);
+            await deleteCartBy({ cart_id: cart_id })
+            await fetchMenu()
             //อย่าฟ้าว
         } catch (error) {
             console.error("Error:", error)
@@ -138,7 +135,7 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ onClose }) => {
                             const menu = menuItem.find((menu_item: any) => menu_item.menu_id === cart_item.menu_id);
                             if (!menu) return null;
                             return (
-                                <Grid item xs={12} key={cart_item.add_date}>
+                                <Grid size={12} key={cart_item.add_date}>
                                     <List className="w-full h-auto">
                                         <ListItem alignItems="flex-start" className="flex justify-between relative mt-5">
                                             <button onClick={(e) => removeCart(e, cart_item.cart_id)}

@@ -8,14 +8,18 @@ import { API_URL } from "@/utils/config"
 import Swal from 'sweetalert2';
 
 interface ShowMenuDetailProps {
-    onClose: () => void,
+    table_id: string
+    table_number: string,
+    bill_id: string,
     menu_id: String
+    onClose: () => void,
 }
 
 const { getMenuByID } = useMenu()
-const { insertCart } = useCart()
+const { insertCart, updateCartBy } = useCart()
 
-const ShowMenuDetail: React.FC<ShowMenuDetailProps> = ({ onClose, menu_id }) => {
+const ShowMenuDetail: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill_id, menu_id, onClose }) => {
+    const { getCartBy } = useCart();
     const [loading, setLoading] = useState<boolean>(true);
     const [menuDetail, setMenuDetail] = useState<Menu>({
         menu_id: '',
@@ -26,10 +30,13 @@ const ShowMenuDetail: React.FC<ShowMenuDetailProps> = ({ onClose, menu_id }) => 
         menu_amount: 0,
         category_name: '',
     });
+
+    const [cartDetail, setCartDetail] = useState<Cart[]>([])
+
     const [cart, setCart] = useState<Cart>({
         cart_id: '',
         cart_status: 'active',
-        cart_amount: 0,
+        cart_amount: 1,
         table_id: '',
         menu_id: '',
         add_date: ''
@@ -37,7 +44,11 @@ const ShowMenuDetail: React.FC<ShowMenuDetailProps> = ({ onClose, menu_id }) => 
 
     useEffect(() => {
         fetchMenu();
+        fetchCart()
     }, []);
+
+    useEffect(() => {
+    }, [menuDetail,]);
 
     const fetchMenu = async () => {
         try {
@@ -49,19 +60,50 @@ const ShowMenuDetail: React.FC<ShowMenuDetailProps> = ({ onClose, menu_id }) => 
             setLoading(false);
         }
     };
+    const fetchCart = async () => {
+        try {
+            const cartData = await getCartBy({
+                $and: [{ cart_status: "active" }, { table_id }],
+            });
+            setCartDetail(cartData);
+            console.log(cartDetail);
+
+        } catch (error) {
+            console.error(error);
+            setLoading(false);
+        }
+    };
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const updatedCart = {
-                ...cart,
-                menu_id: menuDetail.menu_id
-            };
-            await insertCart(updatedCart);
+            console.log("!!!!onSubmit!!!!");
+            let updatedCart
+            const check_menu = cartDetail.map(item => item.menu_id);
+            const foundMenu = check_menu.find(id => id === menuDetail.menu_id);
+
+            if (foundMenu) {
+                const find_cart = cartDetail.find((value) => ({ cart_id: value.cart_id, cart_amount: value.cart_amount }));
+                updatedCart = {
+                    ...cart,
+                    cart_id: find_cart?.cart_id ? find_cart?.cart_id : '',
+                    cart_amount: find_cart?.cart_amount ? find_cart?.cart_amount + cart.cart_amount : 0,
+                    table_id,
+                    menu_id: menuDetail.menu_id
+                };
+                await updateCartBy(updatedCart);
+            } else {
+                updatedCart = {
+                    ...cart,
+                    table_id: table_id,
+                    menu_id: menuDetail.menu_id
+                };
+                await insertCart(updatedCart);
+            }
             setCart({
                 cart_id: '',
                 cart_status: '',
-                cart_amount: 0,
+                cart_amount: 1,
                 table_id: '',
                 menu_id: '',
                 add_date: ''

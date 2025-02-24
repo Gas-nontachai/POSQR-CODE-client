@@ -1,26 +1,36 @@
 "use client"
 import { useState, useEffect, useRef } from "react";
+import { formatDate } from '@/utils/date-func';
+import { useSearchParams, useRouter } from "next/navigation";
 import {
     AlignHorizontalLeft, Search, Restaurant, RefreshOutlined, ShoppingCart, AddLocation
 } from '@mui/icons-material';
-import { Skeleton, List, ListItem, ListItemText, Drawer, Box, Tab, Tabs, Divider, AppBar } from "@mui/material";
-import { Category, Menu } from "@/types/types"
+import { Skeleton, List, ListItem, ListItemText, Drawer, Box, Tab, Tabs, Divider } from "@mui/material";
+import { Category, Menu, Bill } from "@/types/types"
 import { API_URL } from "@/utils/config"
-import { useMenu } from "@/hooks/useMenu"
+import { useMenu, useBill } from "@/hooks/hooks"
 import { useCategory } from "@/hooks/useCategory"
 const { getMenuBy } = useMenu()
+const { getBillByID } = useBill()
 const { getCategoryBy } = useCategory()
 
 import ShowMenuDetail from "@/components/(Customer)/Menu/ShowMenuDetail";
 import CheckBill from "@/components/(Customer)/Menu/CheckBill";
 
 const CustomerHomePage = () => {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const table_id = searchParams.get("table_id") || '';
+    const table_number = searchParams.get("table_number") || '';
+    const bill_id = searchParams.get("bill_id") || '';
+
     const [searchMenu, setSearchMenu] = useState('');
     const [showReset, setShowReset] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCheckBill, setIsCheckBill] = useState(false);
     const [isMenuDetail, setIsMenuDetail] = useState(false);
     const [menuItems, setMenuItems] = useState<Menu[]>([]);
+    const [billItems, setBillItems] = useState<Bill>();
     const [loading, setLoading] = useState(true);
     const [categoryItems, setCategoryItems] = useState<Category[]>([]);
     const menu_id = useRef('');
@@ -30,6 +40,12 @@ const CustomerHomePage = () => {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        if (!table_id && !table_number && !bill_id) {
+            router.push("/screen");
+        }
+    }, [table_id, table_number, bill_id, router]);
+
     const fetchData = async () => {
         try {
             setLoading(true);
@@ -37,6 +53,8 @@ const CustomerHomePage = () => {
             setMenuItems(menuData);
             const cateData = await getCategoryBy();
             setCategoryItems(cateData);
+            const billData = await getBillByID({ bill_id: bill_id || '' });
+            setBillItems(billData);
         } catch (error) {
             console.error("Error:", error);
         } finally {
@@ -117,9 +135,15 @@ const CustomerHomePage = () => {
                     </a>
                 </div>
                 <div className="flex flex-col items-start bg-white rounded-2xl shadow-md p-4 mb-4">
-                    <span className="flex items-center text-xl font-semibold text-gray-800">
-                        <AddLocation className="w-6 h-6 text-red-500 mr-2" /> สุขุมวิท ถ.อะไรไม่รู้
-                    </span>
+                    <div>
+                        <span className="flex items-center text-xl font-semibold text-gray-800">
+                            <AddLocation className="w-6 h-6 text-red-500 mr-2" /> สุขุมวิท ถ.อะไรไม่รู้ (โต๊ะ : {table_number})
+                        </span>
+                        <span>
+                            <p><strong>เวลาเริ่มทาน:</strong> {formatDate(billItems?.start_time, 'HH:mm (dd/MM/yyyy)')}</p>
+                            <p><strong>เวลาหมดอายุ:</strong> {formatDate(billItems?.expired_time, 'HH:mm (dd/MM/yyyy)')}</p>
+                        </span>
+                    </div>
                     <span className="text-gray-500 font-light mt-2">เสิร์ฟความอร่อยทุกวัน</span>
                 </div>
                 <div className="flex items-center">
@@ -172,7 +196,7 @@ const CustomerHomePage = () => {
                             ))}
                         </Tabs>
                     </Box>
-                </div> 
+                </div>
                 {showReset && (
                     <div className="mb-4">
                         <button
@@ -182,7 +206,7 @@ const CustomerHomePage = () => {
                             <RefreshOutlined /><span>ค้นหารายการอาหารทั้งหมด</span>
                         </button>
                     </div>
-                )} 
+                )}
                 <div className="bg-white -m-2">
                     {loading ? (
                         Array.from({ length: 8 }).map((_, index) => (
@@ -280,13 +304,12 @@ const CustomerHomePage = () => {
                     </Drawer>
                 )}
 
-
                 {isMenuDetail && (
-                    <ShowMenuDetail menu_id={menu_id.current ?? ''} onClose={() => { setIsMenuDetail(false) }} />
+                    <ShowMenuDetail table_id={table_id} table_number={table_number} bill_id={bill_id} menu_id={menu_id.current ?? ''} onClose={() => { setIsMenuDetail(false) }} />
                 )}
 
                 {isCheckBill && (
-                    <CheckBill onClose={() => { setIsCheckBill(false) }} />
+                    <CheckBill table_id={table_id} table_number={table_number} bill_id={bill_id} onClose={() => { setIsCheckBill(false) }} />
                 )}
             </div >
         </>
