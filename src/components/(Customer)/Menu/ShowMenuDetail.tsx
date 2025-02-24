@@ -1,11 +1,10 @@
-import { Favorite, Close, AddLocation, Add, Remove } from '@mui/icons-material'
+import { Close, Add, Remove } from '@mui/icons-material'
 import { Skeleton, Dialog, Divider, Toolbar, AppBar } from '@mui/material';
 import { Menu, Cart } from "@/types/types"
 import { useMenu, useCart } from '@/hooks/hooks';
 import { useEffect, useState } from 'react';
 import React from 'react'
 import { API_URL } from "@/utils/config"
-import Swal from 'sweetalert2';
 
 interface ShowMenuDetailProps {
     table_id: string

@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useCategory } from "@/hooks/useCategory";
 import { Category } from "@/types/category";
 import Swal from "sweetalert2";
-import { Add } from "@mui/icons-material"
-import FastfoodIcon from '@mui/icons-material/Fastfood';
+import { Fastfood } from '@mui/icons-material';
 import CircularProgress from '@mui/material/CircularProgress';
 
 const ManageCategoryPage: React.FC = () => {
@@ -125,7 +124,7 @@ const ManageCategoryPage: React.FC = () => {
             <div className="container mx-auto p-6 w-3/4 bg-white shadow-lg rounded-lg">
                 <div className="flex justify-between">
                     <h1 className="text-xl font-bold text-gray-700 flex items-center">
-                        <FastfoodIcon className="w-10 h-10 mr-2" />
+                        <Fastfood className="w-10 h-10 mr-2" />
                         Category
                     </h1>
                 </div>

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Swal from "sweetalert2";
 import { Category, Menu } from "@/types/types";
 import { useMenu, useCategory } from '@/hooks/hooks';
-import { Add, RestaurantMenu } from '@mui/icons-material';
+import { RestaurantMenu } from '@mui/icons-material';
 
 import { API_URL } from "@/utils/config";
 import { motion } from "framer-motion";

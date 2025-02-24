@@ -11,7 +11,7 @@ import { Table, Bill, Payment } from "@/types/types";
 
 import { Menu, MenuItem, Button, Avatar, IconButton, Tooltip, Dialog, } from "@mui/material";
 import {
-  Edit, Delete, MenuOpen, People, CurrencyBitcoin, QrCode, Payments, Details
+  Edit, Delete, MenuOpen, People, CurrencyBitcoin, QrCode, Details
 } from '@mui/icons-material';
 
 const { getTableBy, insertTable, updateTableBy, deleteTableBy } = useTable();
