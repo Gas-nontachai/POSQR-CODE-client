@@ -1,7 +1,7 @@
 "use client";
-import { AppBar, Drawer, Toolbar, Typography, IconButton, CssBaseline } from "@mui/material";
-import { Menu as MenuIcon } from "@mui/icons-material"; // MUI icon for menu button
-import Sidebar from "@/components/sidebar"; // Assuming you have your sidebar component
+import { AppBar, Drawer, Toolbar, IconButton, CssBaseline } from "@mui/material";
+import { Menu as MenuIcon } from "@mui/icons-material";
+import { Sidebar } from "@/components/component";
 import "./globals.css";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -49,7 +49,7 @@ export default function RootLayout({
                   </IconButton>
                   <span className="text-2xl font-bold">GGas</span>
                 </Toolbar>
-              </AppBar> 
+              </AppBar>
               {/* Main Content */}
               <div >{children}</div>
             </div>

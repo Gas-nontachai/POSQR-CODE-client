@@ -34,10 +34,8 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
     const fetchData = async () => {
         const res = await getMenuByID({ menu_id })
         setFormData(res)
-
         const res2 = await getCategoryBy();
         setCategory(Array.isArray(res2) ? res2 : [res2])
-
         setMenuStatus([
             { menu_status: 'available' },
             { menu_status: 'out of stock' },
@@ -60,27 +58,11 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
         try {
             await updateMenuBy(formData);
             onClose();
-            Swal.fire({
-                title: "Menu updated successfully!",
-                icon: "success",
-                toast: true,
-                position: "top-end",
-                timer: 3000,
-                showConfirmButton: false
-            });
+            Swal.fire('สำเร็จ', 'แก้ไขเมนูสำเร็จ', 'success');
         } catch (error) {
             console.log(error);
-            Swal.fire({
-                title: "An error occurred!",
-                icon: "error",
-                toast: true,
-                position: "top-end",
-                timer: 3000,
-                showConfirmButton: false
-            });
         }
-    };
-
+    }; 
 
     return (
         <>
@@ -93,7 +75,7 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                     <input
                         type="text"
                         name="menu_name"
-                        value={formData.menu_name || ''}  
+                        value={formData.menu_name || ''}
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
@@ -106,7 +88,7 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                     <input
                         type="number"
                         name="menu_price"
-                        value={formData.menu_price || 0}  
+                        value={formData.menu_price || 0}
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
@@ -119,7 +101,7 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                     <input
                         type="number"
                         name="menu_amount"
-                        value={formData.menu_amount || 0}  
+                        value={formData.menu_amount || 0}
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
@@ -149,7 +131,7 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                     <label className="block text-sm font-medium text-gray-700">Menu Status</label>
                     <select
                         name="menu_status"
-                        value={formData.menu_status || ''} // Prevent undefined
+                        value={formData.menu_status || ''}
                         onChange={onChange}
                         required
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -168,7 +150,7 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                     </label>
                     <select
                         name="category_name"
-                        value={formData.category_name || ''}  
+                        value={formData.category_name || ''}
                         onChange={onChange}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                         required
