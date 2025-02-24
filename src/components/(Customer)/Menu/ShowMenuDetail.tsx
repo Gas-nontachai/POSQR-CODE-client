@@ -120,7 +120,7 @@ const ShowMenuDetail: React.FC<ShowMenuDetailProps> = ({ table_id, table_number,
                 <Toolbar className="flex justify-center p-4">
                     <span className="text-lg font-[400] text-gray-800">{menuDetail.menu_name}</span>
                 </Toolbar>
-                <button className="hover:text-gray-700 text-gray-500 p-2 rounded-full absolute left-2 top-2" onClick={onClose}>
+                <button className="hover:text-gray-700 text-gray-500 p-2 rounded-full absolute right-2 top-2" onClick={onClose}>
                     <Close />
                 </button>
             </AppBar>

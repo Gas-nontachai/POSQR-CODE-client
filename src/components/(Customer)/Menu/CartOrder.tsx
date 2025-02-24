@@ -1,4 +1,4 @@
-import { Close, Restaurant, Add, Remove, ShoppingCartCheckoutOutlined, InsertChart } from '@mui/icons-material';
+import { Close, Restaurant, Add, Remove, ShoppingCart, DeleteForever } from '@mui/icons-material';
 import { Skeleton, Dialog, AppBar, Toolbar, ListItemText, ListItem, Divider, List, Button } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Cart, Menu, Order } from "@/types/types";
@@ -14,7 +14,7 @@ interface ShowMenuDetailProps {
     onClose: () => void;
 }
 
-const CheckBill: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill_id, onClose }) => {
+const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill_id, onClose }) => {
     const { getCartBy, deleteCartBy } = useCart();
     const { getMenuBy } = useMenu();
     const { insertOrder } = useOrder();
@@ -97,7 +97,7 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
             };
             await insertOrder(orderData);
             await fetchMenu()
-            //อย่าพึ่ง insrt ยังไม่ดง table_id มา
+            await onClose()
         } catch (error) {
             console.error('Error placing order:', error);
         }
@@ -106,10 +106,8 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
     const removeCart = async (e: React.MouseEvent, cart_id: string) => {
         e.preventDefault()
         try {
-            console.log(cart_id);
             await deleteCartBy({ cart_id: cart_id })
             await fetchMenu()
-            //อย่าฟ้าว
         } catch (error) {
             console.error("Error:", error)
         }
@@ -120,9 +118,9 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
         <Dialog fullScreen open={true} onClose={onClose}>
             <AppBar sx={{ position: "relative", backgroundColor: "#f3f4f6", boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
                 <Toolbar className="flex justify-center p-4 text-lg text-gray-800">
-                    <ShoppingCartCheckoutOutlined /><span className='ml-1 font-[600]'>ตะกร้า</span>
+                    <ShoppingCart /><span className='ml-1 font-[600]'>ตะกร้า</span>
                 </Toolbar>
-                <button className="hover:text-gray-700 text-gray-500 p-2 rounded-full absolute left-2 top-2" onClick={onClose}>
+                <button className="hover:text-gray-700 text-gray-500 p-2 rounded-full absolute right-2 top-2" onClick={onClose}>
                     <Close />
                 </button>
             </AppBar>
@@ -138,8 +136,12 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                                 <Grid size={12} key={cart_item.add_date}>
                                     <List className="w-full h-auto">
                                         <ListItem alignItems="flex-start" className="flex justify-between relative mt-5">
-                                            <button onClick={(e) => removeCart(e, cart_item.cart_id)}
-                                                className='absolute top-0 -mt-7 right-0'><Close className='text-red-500 hover:text-red-600' /></button>
+                                            <button
+                                                onClick={(e) => removeCart(e, cart_item.cart_id)}
+                                                className="absolute top-0 right-0 -mt-11 p-2  rounded-full  hover:bg-red-100 transition duration-300 ease-in-out transform hover:scale-110"
+                                            >
+                                                <DeleteForever className="text-red-600 hover:text-red-800 w-6 h-6" />
+                                            </button>
                                             <img
                                                 src={`${API_URL}${menu.menu_img}`}
                                                 className="w-24 h-24 object-cover rounded"
@@ -197,4 +199,4 @@ const CheckBill: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
     );
 };
 
-export default CheckBill;
+export default CartOrder;

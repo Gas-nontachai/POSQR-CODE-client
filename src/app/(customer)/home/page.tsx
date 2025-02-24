@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { formatDate } from '@/utils/date-func';
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-    AlignHorizontalLeft, Search, Restaurant, RefreshOutlined, ShoppingCart, AddLocation
+    AlignHorizontalLeft, Search, Restaurant, RefreshOutlined, ShoppingCart, AddLocation, History
 } from '@mui/icons-material';
 import { Skeleton, List, ListItem, ListItemText, Drawer, Box, Tab, Tabs, Divider } from "@mui/material";
 import { Category, Menu, Bill } from "@/types/types"
@@ -15,7 +15,8 @@ const { getBillByID } = useBill()
 const { getCategoryBy } = useCategory()
 
 import ShowMenuDetail from "@/components/(Customer)/Menu/ShowMenuDetail";
-import CheckBill from "@/components/(Customer)/Menu/CheckBill";
+import CartOrder from "@/components/(Customer)/Menu/CartOrder";
+import HistoryOrder from "@/components/(Customer)/Menu/HistoryOrder";
 
 const CustomerHomePage = () => {
     const searchParams = useSearchParams();
@@ -27,7 +28,8 @@ const CustomerHomePage = () => {
     const [searchMenu, setSearchMenu] = useState('');
     const [showReset, setShowReset] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isCheckBill, setIsCheckBill] = useState(false);
+    const [isCart, setIsCart] = useState(false);
+    const [isHistoryOrder, setIsHistoryOrder] = useState(false);
     const [isMenuDetail, setIsMenuDetail] = useState(false);
     const [menuItems, setMenuItems] = useState<Menu[]>([]);
     const [billItems, setBillItems] = useState<Bill>();
@@ -127,24 +129,40 @@ const CustomerHomePage = () => {
             </div>
             <div className="container mx-auto bg-gray-100 min-h-screen relative p-4 py-16">
                 <div className="fixed top-7 right-7 z-20">
-                    <a onClick={() => setIsCheckBill(true)} className="relative bg-white shadow-lg rounded-full p-2 border border-gray-300 hover:bg-gray-100 hover:shadow-xl transition duration-300">
+                    <a onClick={() => setIsCart(true)} className="relative bg-white shadow-lg rounded-full p-2 border border-gray-300 hover:bg-gray-100 hover:shadow-xl transition duration-300">
                         <ShoppingCart className="w-7 h-7 text-gray-700 hover:text-gray-900" />
                         <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md">
                             <span className="text-xs font-bold">0</span>
                         </div>
                     </a>
                 </div>
+
+                <div className="fixed top-7 right-20 z-20">
+                    <a
+                        onClick={() => setIsHistoryOrder(true)}
+                        className="bg-white shadow-lg rounded-full p-2 border border-gray-300 hover:bg-gray-100 hover:shadow-xl transition duration-300"
+                    >
+                        <History className="w-7 h-7 text-gray-700 hover:text-gray-900" />
+                    </a>
+                </div>
                 <div className="flex flex-col items-start bg-white rounded-2xl shadow-md p-4 mb-4">
-                    <div>
-                        <span className="flex items-center text-xl font-semibold text-gray-800">
-                            <AddLocation className="w-6 h-6 text-red-500 mr-2" /> สุขุมวิท ถ.อะไรไม่รู้ (โต๊ะ : {table_number})
-                        </span>
-                        <span>
-                            <p><strong>เวลาเริ่มทาน:</strong> {formatDate(billItems?.start_time, 'HH:mm (dd/MM/yyyy)')}</p>
-                            <p><strong>เวลาหมดอายุ:</strong> {formatDate(billItems?.expired_time, 'HH:mm (dd/MM/yyyy)')}</p>
-                        </span>
+                    <div className="flex items-start  mb-4 flex-col">
+                        <div className="flex">
+                            <AddLocation className="w-7 h-7 text-red-500 mr-3" />
+                            <span className="text-2xl font-semibold text-gray-800">
+                                สุขุมวิท ถ.อะไรไม่รู้ (โต๊ะ : {table_number})&nbsp;
+                            </span>
+                        </div>
+                        <span className="text-gray-500 font-light mt-2">เสิร์ฟความอร่อยทุกวัน</span>
                     </div>
-                    <span className="text-gray-500 font-light mt-2">เสิร์ฟความอร่อยทุกวัน</span>
+                    <div className="space-y-2">
+                        <p className="text-sm text-gray-600">
+                            <strong>เวลาเริ่มทาน:</strong> {formatDate(billItems?.start_time, 'HH:mm (dd/MM/yyyy)')}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                            <strong>เวลาหมดอายุ:</strong> {formatDate(billItems?.expired_time, 'HH:mm (dd/MM/yyyy)')}
+                        </p>
+                    </div>
                 </div>
                 <div className="flex items-center">
                     <div className="relative w-full">
@@ -267,7 +285,7 @@ const CustomerHomePage = () => {
                         )
                     )}
                     {!isMenuDetail && (
-                        <a onClick={() => setIsCheckBill(true)}>
+                        <a onClick={() => setIsCart(true)}>
                             <div className="fixed bottom-16 md:bottom-0 left-1/2 transform -translate-x-1/2 flex justify-center bg-[#f3f4f5] pb-5 pt-7 items-center w-full shadow-lg shadow-gray-800">
                                 <button className="bg-[#3fc979] hover:bg-[#36ce75] rounded-xl py-2 px-3 font-medium w-80 text-white text-base shadow-md flex justify-between items-center" type="submit">
                                     <div className="flex items-center font-medium">
@@ -308,8 +326,12 @@ const CustomerHomePage = () => {
                     <ShowMenuDetail table_id={table_id} table_number={table_number} bill_id={bill_id} menu_id={menu_id.current ?? ''} onClose={() => { setIsMenuDetail(false) }} />
                 )}
 
-                {isCheckBill && (
-                    <CheckBill table_id={table_id} table_number={table_number} bill_id={bill_id} onClose={() => { setIsCheckBill(false) }} />
+                {isCart && (
+                    <CartOrder table_id={table_id} table_number={table_number} bill_id={bill_id} onClose={() => { setIsCart(false) }} />
+                )}
+
+                {isHistoryOrder && (
+                    <HistoryOrder table_id = { table_id } table_number = { table_number } bill_id = { bill_id } onClose = { () => { setIsHistoryOrder(false) } } />
                 )}
             </div >
         </>
