@@ -11,10 +11,12 @@ interface ShowMenuDetailProps {
     table_id: string
     table_number: string,
     bill_id: string,
-    onClose: () => void;
+    onClose: () => void,
+    onHistory: () => void,
+    cart_count: number;
 }
 
-const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill_id, onClose }) => {
+const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill_id, onClose, cart_count, onHistory }) => {
     const { getCartBy, deleteCartBy, updateCartBy } = useCart();
     const { getMenuBy } = useMenu();
     const { insertOrder } = useOrder();
@@ -23,6 +25,7 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
     const [menuItem, setMenuItem] = useState<Menu[]>([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const [error, setError] = useState('')
+    const [loadingText, setLoadingText] = useState<string>('');
 
     useEffect(() => {
         fetchMenu();
@@ -112,7 +115,6 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
 
 
     const submitOrder = async () => {
-
         if (cartItem.length === 0) {
             setError("ไม่สามารถทำรายการได้....");
             setTimeout(() => {
@@ -120,8 +122,8 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
             }, 1000);
             return;
         }
-
         try {
+            setLoadingText("กำลังทำรายการ...");
             const orderData = {
                 order_id: "",
                 table_id: table_id,
@@ -134,7 +136,9 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
             };
             await insertOrder(orderData);
             await fetchMenu()
-            await onClose()
+            setLoadingText("");
+            await onClose();
+            await onHistory()
         } catch (error) {
             console.error('Error placing order:', error);
         }
@@ -162,13 +166,16 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                 </button>
             </AppBar>
             <div className="container mx-auto bg-white rounded pb-3 p-6 h-5/6 overflow-auto relative">
+                {loadingText && (
+                    <div className="text-center text-gray-600 font-medium my-2">{loadingText}</div>
+                )}
                 <Grid spacing={3} className='mb-2'>
                     {cartItem.length === 0 ? (
                         <Grid  >
                             <div className="text-center text-xl text-gray-500 py-5">
                                 {error
                                     ? <p>{error}</p>
-                                    : <p>ไม่มีรายการในตะกร้า</p>
+                                    : <p className='text-[17px]'>ไม่มีรายการในตะกร้า..</p>
                                 }
                             </div>
                         </Grid>
@@ -234,7 +241,7 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                     onClick={submitOrder}
                     className="bg-[#3fc979] hover:bg-[#36ce75] rounded-xl py-2 mb-5 font-medium text-white text-base shadow-md hover:shadow-lg transition-all duration-200 w-full max-w-[320px]"
                 >
-                    สั่ง {cartItem.length} รายการ
+                    สั่ง {cart_count} รายการ
                 </button>
             </div>
         </Dialog>

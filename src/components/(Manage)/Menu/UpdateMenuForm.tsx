@@ -57,12 +57,11 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
         e.preventDefault();
         try {
             await updateMenuBy(formData);
-            onClose();
-            Swal.fire('สำเร็จ', 'แก้ไขเมนูสำเร็จ', 'success');
+            onClose(); 
         } catch (error) {
             console.log(error);
         }
-    }; 
+    };
 
     return (
         <>
@@ -123,9 +122,15 @@ const UpdateMenuForm: React.FC<UpdateUserFormProps> = ({ onClose, menu_id }) => 
                     <input
                         type="file"
                         name="menu_img"
-                        onChange={(e) => setFormData({ ...formData, menu_img: (e.target as HTMLInputElement).files?.[0] || '' })}
+                        onChange={(e) => { 
+                            const file = (e.target as HTMLInputElement).files?.[0];
+                            if (file) {
+                                setFormData({ ...formData, menu_img: file });
+                            }
+                        }}
                         className="mt-1 block w-full p-2 border border-gray-300 rounded"
                     />
+
                 </div>
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700">Menu Status</label>

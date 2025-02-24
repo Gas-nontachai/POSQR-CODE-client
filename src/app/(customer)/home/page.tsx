@@ -8,9 +8,10 @@ import {
 import { Skeleton, List, ListItem, ListItemText, Drawer, Box, Tab, Tabs, Divider } from "@mui/material";
 import { Category, Menu, Bill } from "@/types/types"
 import { API_URL } from "@/utils/config"
-import { useMenu, useBill } from "@/hooks/hooks"
+import { useMenu, useBill, useCart } from "@/hooks/hooks"
 import { useCategory } from "@/hooks/useCategory"
 const { getMenuBy } = useMenu()
+const { getCartBy } = useCart()
 const { getBillByID } = useBill()
 const { getCategoryBy } = useCategory()
 
@@ -37,10 +38,20 @@ const CustomerHomePage = () => {
     const [categoryItems, setCategoryItems] = useState<Category[]>([]);
     const menu_id = useRef('');
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    const [cartItemCount, setCartItemCount] = useState(0);
+
+    useEffect(() => {
+        fetchCart();
+    }, [getCartBy]);
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    const fetchCart = async () => {
+        const cartData = await getCartBy({ $and: [{ cart_status: "active" }] });
+        setCartItemCount(cartData.length);
+    };
 
     useEffect(() => {
         if (!table_id && !table_number && !bill_id) {
@@ -132,7 +143,7 @@ const CustomerHomePage = () => {
                     <a onClick={() => setIsCart(true)} className="relative bg-white shadow-lg rounded-full p-2 border border-gray-300 hover:bg-gray-100 hover:shadow-xl transition duration-300">
                         <ShoppingCart className="w-7 h-7 text-gray-700 hover:text-gray-900" />
                         <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md">
-                            <span className="text-xs font-bold">0</span>
+                            <span className="text-xs font-bold">{cartItemCount}</span>
                         </div>
                     </a>
                 </div>
@@ -323,11 +334,13 @@ const CustomerHomePage = () => {
                 )}
 
                 {isMenuDetail && (
-                    <ShowMenuDetail table_id={table_id} table_number={table_number} bill_id={bill_id} menu_id={menu_id.current ?? ''} onClose={() => { setIsMenuDetail(false) }} />
+                    <ShowMenuDetail table_id={table_id} table_number={table_number} bill_id={bill_id} menu_id={menu_id.current ?? ''} onClose={() => { setIsMenuDetail(false); }} />
                 )}
 
                 {isCart && (
-                    <CartOrder table_id={table_id} table_number={table_number} bill_id={bill_id} onClose={() => { setIsCart(false) }} />
+                    <CartOrder table_id={table_id} table_number={table_number} bill_id={bill_id} cart_count={cartItemCount} onClose={() => { setIsCart(false); fetchCart(); }}
+                        onHistory={() => { setIsHistoryOrder(true) }}
+                    />
                 )}
 
                 {isHistoryOrder && (
