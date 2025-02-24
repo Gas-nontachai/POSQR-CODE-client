@@ -225,7 +225,7 @@ const CustomerHomePage = () => {
                         </button>
                     </div>
                 )}
-                <div className="bg-white -m-2">
+                <div className="bg-white rounded-lg -m-2">
                     {loading ? (
                         Array.from({ length: 8 }).map((_, index) => (
                             <div key={index} className="bg-white border-gray-300 border-2 p-2 my-2 rounded-lg shadow-lg flex flex-col justify-between">

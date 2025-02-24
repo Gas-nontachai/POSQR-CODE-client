@@ -162,7 +162,7 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                 </button>
             </AppBar>
             <div className="container mx-auto bg-white rounded pb-3 p-6 h-5/6 overflow-auto relative">
-                <Grid container spacing={3} className='mb-28'>
+                <Grid spacing={3} className='mb-2'>
                     {cartItem.length === 0 ? (
                         <Grid  >
                             <div className="text-center text-xl text-gray-500 py-5">
@@ -198,19 +198,19 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                                             <div className="flex items-center gap-4 rounded-full">
                                                 <button
                                                     type="button"
-                                                    className="border rounded-full border-gray-400 text-gray-600 px-2 py-2 font-bold shadow-md transform hover:scale-105 transition duration-300 hover:bg-gray-200"
+                                                    className="border rounded-full border-gray-400 text-gray-600 px-1 py-1 font-bold shadow-md transform hover:scale-105 transition duration-300 hover:bg-gray-200"
                                                     onClick={() => handleDecrease(cart_item.cart_id, cart_item.menu_id)}
                                                 >
                                                     <Remove className="w-5 h-5" />
                                                 </button>
                                                 <input
                                                     readOnly
-                                                    className="text-xl text-gray-700 font-semibold w-5 text-center focus:outline-none"
+                                                    className="text-[15px] text-gray-700 font-semibold w-5 text-center focus:outline-none"
                                                     value={cart_item.cart_amount}
                                                 />
                                                 <button
                                                     type="button"
-                                                    className="border rounded-full border-[#36ce75] text-[#36ce75] hover:bg-[#d2ffe5] px-2 py-2 font-bold shadow-md transform hover:scale-105 transition duration-300"
+                                                    className="border rounded-full border-[#36ce75] text-[#36ce75] hover:bg-[#d2ffe5] px-1 py-1 font-bold shadow-md transform hover:scale-105 transition duration-300"
                                                     onClick={() => handleIncrease(cart_item.cart_id, cart_item.menu_id)}
                                                 >
                                                     <Add className="w-5 h-5" />
