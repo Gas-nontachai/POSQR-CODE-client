@@ -331,7 +331,7 @@ const ManageTablePage = () => {
                             elevation: 0,
                             sx: {
                               overflow: 'visible',
-                              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                              filter: 'drop-shadow(0px 1px 3px rgba(155, 155, 155, 0.1))',
                               mt: 1.5,
                               '& .MuiAvatar-root': {
                                 width: 32,

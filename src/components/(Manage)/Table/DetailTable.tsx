@@ -60,11 +60,14 @@ const DetailTable: React.FC<DetailTableProps> = ({ billData, paymentData, show_q
                     <p style={{ fontSize: '10px' }}>(ราคารวมภาษีมูลค่าเพิ่ม)</p>
                 </div>
                 <hr className="border-dashed mb-2" />
-                <div className="text-center">
+                <div className="text-center flex justify-center">
                     {
                         show_qr_code ? (
                             billData.qr_code ? (
-                                <QRCodeGenerator link={billData.qr_code} size={150} />
+                                <div>
+                                    <span className="mb-5"><strong>QR Code สั่งอาหาร</strong></span>
+                                    <QRCodeGenerator link={billData.qr_code} size={150} />
+                                </div>
                             ) : (
                                 <p className="text-sm">ไม่มีข้อมูล QR Code</p>
                             )
@@ -73,7 +76,9 @@ const DetailTable: React.FC<DetailTableProps> = ({ billData, paymentData, show_q
                 </div>
                 <hr className="border-dashed mb-2" />
                 <div className="text-center">
-                    <ReceiptPrint billData={billData} paymentData={paymentData} show_qr_code={show_qr_code} />
+                    {billData && paymentData && (
+                        <ReceiptPrint billData={billData} paymentData={paymentData} show_qr_code={true} />
+                    )}
                 </div>
                 <p className="text-center text-xs mt-2">ขอบคุณที่ใช้บริการ!</p>
 
