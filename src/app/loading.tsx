@@ -1,14 +1,12 @@
-import React from 'react'
+import React from 'react';
 import { CircularProgress } from '@mui/material';
 
-const loading = () => {
+const Loading = () => {
     return (
-        <>
-            <div className="container mx-auto flex justify-center items-center mt-10">
-                <CircularProgress />
-            </div>
-        </>
-    )
-}
+        <div className="container mx-auto flex justify-center items-center mt-10">
+            <CircularProgress />
+        </div>
+    );
+};
 
-export default loading
+export default Loading;

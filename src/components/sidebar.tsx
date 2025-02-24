@@ -1,9 +1,10 @@
 import { FC, useState } from "react";
 import { List, ListItem, ListItemButton, ListItemText, Divider, Collapse } from "@mui/material";
-import { Home, Restaurant, Category, Tune, ShoppingCart, TableChart, BarChart, People, ExpandLess, ExpandMore, ContactMail, ExitToApp, SupportAgent } from "@mui/icons-material";
+import { Home, Restaurant, Category, Tune, ShoppingCart, TableChart, BarChart, People, ExpandLess, ExpandMore, ExitToApp, SupportAgent, History, CreditScore, Fastfood } from "@mui/icons-material";
 
 const Sidebar: FC = () => {
     const [openManage, setOpenManage] = useState(false);
+    const [openHistory, setOpenHistory] = useState(false);
 
     return (
         <div className="w-64 bg-[#fff] text-gray-700 h-full fixed left-0 top-0 p-4 flex flex-col">
@@ -73,7 +74,31 @@ const Sidebar: FC = () => {
                     </List>
                 </Collapse>
                 <Divider light />
-
+                {/* Manage Section */}
+                <ListItem disablePadding>
+                    <ListItemButton onClick={() => setOpenHistory(!openHistory)}>
+                        <History className="mr-3" />
+                        <ListItemText primary="History" />
+                        {openHistory ? <ExpandLess /> : <ExpandMore />}
+                    </ListItemButton>
+                </ListItem>
+                <Collapse in={openHistory} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                        <ListItem disablePadding>
+                            <ListItemButton component="a" href="/bills" sx={{ ml: 2 }}>
+                                <CreditScore className="mr-3" />
+                                <ListItemText primary="Bills" />
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem disablePadding>
+                            <ListItemButton component="a" href="/orders" sx={{ ml: 2 }}>
+                                <Fastfood className="mr-3" />
+                                <ListItemText primary="Orders" />
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+                </Collapse>
+                <Divider light />
                 {/* Contact Link */}
                 {/* <ListItem disablePadding>
                     <ListItemButton component="a" href="/contact">
