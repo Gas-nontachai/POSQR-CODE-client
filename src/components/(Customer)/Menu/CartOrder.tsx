@@ -21,7 +21,6 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
 
     const [cartItem, setCartItem] = useState<Cart[]>([]);
     const [menuItem, setMenuItem] = useState<Menu[]>([]);
-    const [orderItem, setOrderItem] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [totalPrice, setTotalPrice] = useState(0);
 

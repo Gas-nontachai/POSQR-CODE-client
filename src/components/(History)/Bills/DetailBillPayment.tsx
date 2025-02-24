@@ -4,7 +4,7 @@ import ReceiptPrint from '@/components/(Manage)/Table/ReceiptPrint';
 import QRCodeGenerator from '@/utils/qrcode-generater';
 
 import { Close, ShoppingCart } from '@mui/icons-material';
-import { Dialog, AppBar, Toolbar, ListItemText, ListItem, Divider, List, Button } from '@mui/material';
+import { Dialog, AppBar, Toolbar } from '@mui/material';
 
 import { useBill, usePayment } from '@/hooks/hooks';
 import { Bill, Payment } from '@/types/types';

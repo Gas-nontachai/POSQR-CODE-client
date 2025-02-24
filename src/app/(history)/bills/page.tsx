@@ -1,10 +1,9 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { Container, Box, TextField, Button, Tabs, Tab, Pagination } from '@mui/material';
-import { useRouter } from 'next/navigation';
 import { formatDate } from '@/utils/date-func';
-import { Bill, Payment } from '@/types/types';
-import { useBill, usePayment } from '@/hooks/hooks';
+import { Bill } from '@/types/types';
+import { useBill } from '@/hooks/hooks';
 import Loading from '@/app/loading';
 import DetailBillPayment from '@/components/(History)/Bills/DetailBillPayment'
 
@@ -18,9 +17,7 @@ const HistoryBillsPage = () => {
     const [searchBillId, setSearchBillId] = useState('');
     const [status, setStatus] = useState('paid');
     const [billData, setBillData] = useState<Bill[]>([]);
-    const [paymentData, setPaymentData] = useState<Payment[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const router = useRouter();
 
     const itemsPerPage = 5;
     const current_bill_id = useRef('')
@@ -74,7 +71,7 @@ const HistoryBillsPage = () => {
         }
     };
 
-    const handlePageChange = (event: any, value: any) => {
+    const handlePageChange = (value: any) => {
         setCurrentPage(value);
     };
     return (

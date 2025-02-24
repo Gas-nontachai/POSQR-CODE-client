@@ -2,7 +2,6 @@ import { useUser } from "@/hooks/useUser";
 import { useUserRole } from "@/hooks/useUserRole";
 import { UserRole } from "@/types/user-role"
 import { User } from "@/types/user"
-import Swal from "sweetalert2";
 import React, { useEffect, useState, useRef } from "react";
 
 interface AddUserFormProps {
@@ -13,7 +12,6 @@ const AddUserForm: React.FC<AddUserFormProps> = ({ onClose }) => {
     const { insertUser } = useUser()
     const { getUserRoleBy } = useUserRole()
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-
 
     const [formData, setFormData] = useState<User>({
         user_id: "",

@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client'; // ใช้ `react-dom/client` สำหรับ React 18+
+import ReactDOM from 'react-dom/client';
 import { Bill, Payment } from '@/types/types';
 import { formatDate } from '@/utils/date-func';
 import QRCodeGenerator from '@/utils/qrcode-generater';
@@ -14,11 +14,9 @@ const ReceiptPrint: React.FC<ReceiptPrintProps> = ({ billData, paymentData, show
     const printDetail = async () => {
         const printWindow = window.open('', '_blank');
         if (printWindow) {
-            // สร้าง div ที่จะใช้เป็น root container
             const container = printWindow.document.createElement('div');
-            printWindow.document.body.appendChild(container); // เพิ่ม div ลงใน body
+            printWindow.document.body.appendChild(container);
 
-            // ใช้ ReactDOM.createRoot เพื่อ render
             const root = ReactDOM.createRoot(container);
 
             root.render(
