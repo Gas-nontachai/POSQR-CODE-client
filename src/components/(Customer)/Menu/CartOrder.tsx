@@ -1,5 +1,5 @@
-import { Close, Restaurant, Add, Remove, ShoppingCart, DeleteForever } from '@mui/icons-material';
-import { Skeleton, Dialog, AppBar, Toolbar, ListItemText, ListItem, Divider, List, Button } from '@mui/material';
+import { Close, Add, Remove, ShoppingCart, DeleteForever } from '@mui/icons-material';
+import { Skeleton, Dialog, AppBar, Toolbar, ListItemText, ListItem, Divider, List } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Cart, Menu, Order } from "@/types/types";
 import { useCart, useMenu, useOrder } from '@/hooks/hooks';
@@ -15,15 +15,14 @@ interface ShowMenuDetailProps {
 }
 
 const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill_id, onClose }) => {
-    const { getCartBy, deleteCartBy } = useCart();
+    const { getCartBy, deleteCartBy, updateCartBy } = useCart();
     const { getMenuBy } = useMenu();
     const { insertOrder } = useOrder();
 
     const [cartItem, setCartItem] = useState<Cart[]>([]);
     const [menuItem, setMenuItem] = useState<Menu[]>([]);
-    const [orderItem, setOrderItem] = useState<Order[]>([]);
-    const [loading, setLoading] = useState(true);
     const [totalPrice, setTotalPrice] = useState(0);
+    const [error, setError] = useState('')
 
     useEffect(() => {
         fetchMenu();
@@ -38,7 +37,6 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
 
     const fetchMenu = async () => {
         try {
-            setLoading(true);
             const cartData = await getCartBy({
                 $and: [{ cart_status: "active" }, { table_id }],
             });
@@ -50,7 +48,6 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
         } catch (error) {
             console.error(error);
         } finally {
-            setLoading(false);
         }
     };
 
@@ -65,25 +62,65 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
         setTotalPrice(total);
     };
 
-    const handleIncrease = (menu_id: string) => {
-        setCartItem(prevItems =>
-            prevItems.map(item =>
-                item.menu_id === menu_id ? { ...item, cart_amount: item.cart_amount + 1 } : item
-            )
-        );
+    const handleIncrease = async (cart_id: string, menu_id: string) => {
+        try {
+            const cartItemsToUpdate = await getCartBy({
+                $and: [{ cart_id }, { menu_id }],
+            });
+            if (!cartItemsToUpdate || cartItemsToUpdate.length === 0) return;
+            const cartItemToUpdate = cartItemsToUpdate[0];
+            await updateCartBy({
+                cart_id,
+                menu_id,
+                cart_amount: cartItemToUpdate.cart_amount + 1,
+                cart_status: cartItemToUpdate.cart_status,
+                table_id: cartItemToUpdate.table_id,
+                add_date: cartItemToUpdate.add_date
+            });
+            await fetchMenu();
+        } catch (error) {
+            console.error("Error increasing quantity:", error);
+        }
     };
 
-    const handleDecrease = (menu_id: string) => {
-        setCartItem(prevItems =>
-            prevItems.map(item =>
-                item.menu_id === menu_id && item.cart_amount > 0
-                    ? { ...item, cart_amount: item.cart_amount - 1 }
-                    : item
-            )
-        );
+    const handleDecrease = async (cart_id: string, menu_id: string) => {
+        try {
+            const cartItemsToUpdate = await getCartBy({
+                $and: [{ cart_id }, { menu_id }],
+            });
+            if (!cartItemsToUpdate || cartItemsToUpdate.length === 0) return;
+            const cartItemToUpdate = cartItemsToUpdate[0];
+            if (cartItemToUpdate.cart_amount > 1) {
+                await updateCartBy({
+                    cart_id,
+                    menu_id,
+                    cart_amount: cartItemToUpdate.cart_amount - 1,
+                    cart_status: cartItemToUpdate.cart_status,
+                    table_id: cartItemToUpdate.table_id,
+                    add_date: cartItemToUpdate.add_date,
+                });
+            } else {
+                await deleteCartBy({
+                    cart_id: cart_id
+                });
+            }
+            await fetchMenu();
+        } catch (error) {
+            console.error("Error decreasing quantity:", error);
+        }
     };
+
 
     const submitOrder = async () => {
+
+        if (cartItem.length === 0) {
+            setError("ไม่สามารถทำรายการได้....");
+            setTimeout(() => {
+                setError('');
+            }, 1000);
+            return;
+        }
+
         try {
             const orderData = {
                 order_id: "",
@@ -125,20 +162,27 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                 </button>
             </AppBar>
             <div className="container mx-auto bg-white rounded pb-3 p-6 h-5/6 overflow-auto relative">
-                {loading ? (
-                    <Skeleton variant="rectangular" width="100%" height={300} />
-                ) : (
-                    <Grid container spacing={3} className='mb-28'>
-                        {cartItem.map((cart_item) => {
+                <Grid container spacing={3} className='mb-28'>
+                    {cartItem.length === 0 ? (
+                        <Grid  >
+                            <div className="text-center text-xl text-gray-500 py-5">
+                                {error
+                                    ? <p>{error}</p>
+                                    : <p>ไม่มีรายการในตะกร้า</p>
+                                }
+                            </div>
+                        </Grid>
+                    ) : (
+                        cartItem.map((cart_item) => {
                             const menu = menuItem.find((menu_item: any) => menu_item.menu_id === cart_item.menu_id);
                             if (!menu) return null;
                             return (
-                                <Grid size={12} key={cart_item.add_date}>
+                                <Grid key={cart_item.add_date}>
                                     <List className="w-full h-auto">
                                         <ListItem alignItems="flex-start" className="flex justify-between relative mt-5">
                                             <button
                                                 onClick={(e) => removeCart(e, cart_item.cart_id)}
-                                                className="absolute top-0 right-0 -mt-11 p-2  rounded-full  hover:bg-red-100 transition duration-300 ease-in-out transform hover:scale-110"
+                                                className="absolute top-0 right-0 -mt-11 p-2 rounded-full hover:bg-red-100 transition duration-300 ease-in-out transform hover:scale-110"
                                             >
                                                 <DeleteForever className="text-red-600 hover:text-red-800 w-6 h-6" />
                                             </button>
@@ -147,7 +191,7 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                                                 className="w-24 h-24 object-cover rounded"
                                             />
                                             <ListItemText
-                                                className='ml-5'
+                                                className="ml-5"
                                                 primary={menu.menu_name}
                                                 secondary={`฿${menu.menu_price}`}
                                             />
@@ -155,7 +199,7 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                                                 <button
                                                     type="button"
                                                     className="border rounded-full border-gray-400 text-gray-600 px-2 py-2 font-bold shadow-md transform hover:scale-105 transition duration-300 hover:bg-gray-200"
-                                                    onClick={() => handleDecrease(cart_item.menu_id)}
+                                                    onClick={() => handleDecrease(cart_item.cart_id, cart_item.menu_id)}
                                                 >
                                                     <Remove className="w-5 h-5" />
                                                 </button>
@@ -167,7 +211,7 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                                                 <button
                                                     type="button"
                                                     className="border rounded-full border-[#36ce75] text-[#36ce75] hover:bg-[#d2ffe5] px-2 py-2 font-bold shadow-md transform hover:scale-105 transition duration-300"
-                                                    onClick={() => handleIncrease(cart_item.menu_id)}
+                                                    onClick={() => handleIncrease(cart_item.cart_id, cart_item.menu_id)}
                                                 >
                                                     <Add className="w-5 h-5" />
                                                 </button>
@@ -177,9 +221,9 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                                     </List>
                                 </Grid>
                             );
-                        })}
-                    </Grid>
-                )}
+                        })
+                    )}
+                </Grid>
             </div>
             <div className="bg-gray-100 w-full p-4 shadow-xl flex flex-col fixed bottom-0 items-center justify-center">
                 <div className="flex justify-between w-full">

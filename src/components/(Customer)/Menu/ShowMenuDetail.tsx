@@ -76,8 +76,7 @@ const ShowMenuDetail: React.FC<ShowMenuDetailProps> = ({ table_id, table_number,
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        try {
-            console.log("!!!!onSubmit!!!!");
+        try { 
             let updatedCart
             const check_menu = cartDetail.map(item => item.menu_id);
             const foundMenu = check_menu.find(id => id === menuDetail.menu_id);
