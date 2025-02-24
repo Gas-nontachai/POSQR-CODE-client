@@ -14,7 +14,7 @@ interface OpenTableProps {
 }
 
 const OpenTable: React.FC<OpenTableProps> = ({ billData, currentTableNumber, currentTableID, changeTableStatus }) => {
-    const { insertBill } = useBill();
+    const { insertBill, generateBillID } = useBill();
     const { insertPayment } = usePayment();
 
     const price = 199
@@ -54,11 +54,13 @@ const OpenTable: React.FC<OpenTableProps> = ({ billData, currentTableNumber, cur
             alert("กรุณากรอกจำนวนลูกค้า");
             return;
         }
-
+        const bill_id = await generateBillID()
         const updatedBill = {
             ...newBill,
+            bill_id: bill_id,
             table_id: currentTableID,
             table_number: currentTableNumber,
+            qr_code: `http://localhost:3000/home?table_id=${currentTableID}&table_number=${currentTableNumber}&bill_id=${bill_id}`,
             bill_status: "un-paid",
             start_time: formatDate(new Date(), 'yyyy-MM-dd HH:mm'),
             expired_time: formatDate(new Date(new Date().getTime() + 90 * 60000), 'yyyy-MM-dd HH:mm'),
@@ -84,13 +86,13 @@ const OpenTable: React.FC<OpenTableProps> = ({ billData, currentTableNumber, cur
                     <span>เปิดใช้งานโต๊ะ: {currentTableNumber}</span>
                 </Grid>
                 <Grid size={6}>
-                    <span>เวลาเปิดบิล: {formatDate(new Date(), 'dd/MM/yyyy HH:mm:ss')}</span>
+                    <span>เวลาเปิดบิล: {formatDate(new Date(), 'dd/MM/yyyy HH:mm')}</span>
                 </Grid>
                 <Grid size={6}>
-                    <span>เวลาเริ่มทาน: {formatDate(new Date(), 'HH:mm:ss (dd/MM/yyyy)')}</span>
+                    <span>เวลาเริ่มทาน: {formatDate(new Date(), 'HH:mm (dd/MM/yyyy)')}</span>
                 </Grid>
                 <Grid size={6}>
-                    <span>เวลาหมดอายุ: {formatDate(new Date(new Date().getTime() + 90 * 60000), 'HH:mm:ss (dd/MM/yyyy)')}</span>
+                    <span>เวลาหมดอายุ: {formatDate(new Date(new Date().getTime() + 90 * 60000), 'HH:mm (dd/MM/yyyy)')}</span>
                 </Grid>
                 <Grid size={6}>
                     <TextField
