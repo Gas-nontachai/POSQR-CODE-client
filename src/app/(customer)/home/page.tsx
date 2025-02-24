@@ -120,7 +120,7 @@ const CustomerHomePage = () => {
 
     return (
         <>
-            <div className="relative z-10">
+            <div className="relative z-10 container mx-auto">
                 <img className="w-full object-cover h-56 md:h-96 rounded-b-md" src="https://www.ryoiireview.com/upload/article/202306/1687261453_24a425f3fc949e538c713d38f7b42107.jpg" />
                 <div className="bg-white w-24 h-24 rounded-full flex items-center justify-center absolute -bottom-10 border-2 border-gray-200 shadow-sm shadow-gray-200 left-1/2 transform -translate-x-1/2">
                     logo
@@ -242,7 +242,7 @@ const CustomerHomePage = () => {
                                 <p className="text-[15px] text-gray-500 ml-4">ไม่มีข้อมูลที่คุณค้นหา ลองค้นหาด้วยคำอื่น ๆ ดูสิ</p>
                             </div>
                         ) : (
-                            <div className="space-y-4 md:mb-5 mb-24">
+                            <div className="space-y-4 mb-16">
                                 {menuItems.map((item) => (
                                     <a
                                         key={item.menu_id}
@@ -286,11 +286,11 @@ const CustomerHomePage = () => {
                     )}
                     {!isMenuDetail && (
                         <a onClick={() => setIsCart(true)}>
-                            <div className="fixed bottom-16 md:bottom-0 left-1/2 transform -translate-x-1/2 flex justify-center bg-[#f3f4f5] pb-5 pt-7 items-center w-full shadow-lg shadow-gray-800">
+                            <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 flex justify-center bg-[#f3f4f5] pb-5 pt-7 items-center w-full shadow-lg shadow-gray-800">
                                 <button className="bg-[#3fc979] hover:bg-[#36ce75] rounded-xl py-2 px-3 font-medium w-80 text-white text-base shadow-md flex justify-between items-center" type="submit">
                                     <div className="flex items-center font-medium">
                                         <Restaurant className="mr-2" />
-                                        เพิ่มลงตะกร้า
+                                        ดูตะกร้า
                                     </div>
                                     <span>฿0.00</span>
                                 </button>
@@ -331,7 +331,7 @@ const CustomerHomePage = () => {
                 )}
 
                 {isHistoryOrder && (
-                    <HistoryOrder table_id = { table_id } table_number = { table_number } bill_id = { bill_id } onClose = { () => { setIsHistoryOrder(false) } } />
+                    <HistoryOrder table_id={table_id} table_number={table_number} bill_id={bill_id} onClose={() => { setIsHistoryOrder(false) }} />
                 )}
             </div >
         </>

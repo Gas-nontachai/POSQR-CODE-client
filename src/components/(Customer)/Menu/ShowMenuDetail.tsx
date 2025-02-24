@@ -207,7 +207,7 @@ const ShowMenuDetail: React.FC<ShowMenuDetailProps> = ({ table_id, table_number,
 
                         </>
                     )}
-                    <div className="fixed bottom-16 md:bottom-0 left-1/2 transform -translate-x-1/2 flex justify-center bg-gray-100 pb-5 pt-7 items-center w-full shadow-lg shadow-gray-800">
+                    <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 flex justify-center bg-gray-100 pb-5 pt-7 items-center w-full shadow-lg shadow-gray-800">
                         <button className="bg-[#3fc979] hover:bg-[#36ce75] rounded-xl py-2 font-medium w-80 text-white text-base shadow-md hover:shadow-lg transition-all duration-200">
                             เพิ่มลงตะกร้า ฿{menuDetail.menu_price}
                         </button>

@@ -181,19 +181,17 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                     </Grid>
                 )}
             </div>
-            <div className="bg-gray-100 w-full p-4 shadow-xl flex flex-col fixed bottom-16 md:bottom-0 items-center justify-center">
+            <div className="bg-gray-100 w-full p-4 shadow-xl flex flex-col fixed bottom-0 items-center justify-center">
                 <div className="flex justify-between w-full">
                     <span className='text-[18px] font-[500] mb-2'>รวมทั้งหมด  </span>
                     <span className='text-[18px] font-[500] mb-2'>฿{totalPrice}</span>
                 </div>
-                <Button
-                    variant="contained"
-                    color="success"
+                <button
                     onClick={submitOrder}
-                    className="rounded-xl py-2 mb-5 font-medium text-white text-base shadow-md hover:shadow-lg transition-all duration-200 w-full max-w-[320px]"
+                    className="bg-[#3fc979] hover:bg-[#36ce75] rounded-xl py-2 mb-5 font-medium text-white text-base shadow-md hover:shadow-lg transition-all duration-200 w-full max-w-[320px]"
                 >
-                    <Restaurant className='mr-2' />สั่ง {cartItem.length} รายการ
-                </Button>
+                    สั่ง {cartItem.length} รายการ
+                </button>
             </div>
         </Dialog>
     );

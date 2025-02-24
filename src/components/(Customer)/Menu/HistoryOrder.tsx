@@ -81,8 +81,7 @@ const HistoryOrder: React.FC<HistoryOrderProps> = ({ onClose, table_id, table_nu
                     <Close />
                 </button>
             </AppBar>
-
-            <div className="pl-2 mt-5 overflow-y-auto max-h-96">
+            <div className="pl-2 mt-5 h-screen overflow-auto">
                 <ul>
                     {loading ? (
                         Array.from({ length: 8 }).map((_, index) => (
@@ -138,15 +137,16 @@ const HistoryOrder: React.FC<HistoryOrderProps> = ({ onClose, table_id, table_nu
                                         letterSpacing: '0.5px',
                                     }}
                                 >
-                                    {item.order_status === 'pending' && 'รอเสริฟ'}
-                                    {item.order_status === 'served' && 'เสริฟแล้ว'}
+                                    <>
+                                        {item.order_status === 'pending' ? 'รอเสิร์ฟ' : item.order_status === 'served' ? 'เสิร์ฟแล้ว' : ''}
+                                    </>
                                 </div>
                             </li>
                         ))
                     )}
                 </ul>
             </div>
-            <div className="fixed bottom-16 md:bottom-0 bg-gray-100 shadow-lg py-5 px-2 w-full flex justify-around rounded-lg">
+            <div className="fixed bottom-0 bg-gray-100 shadow-lg py-5 px-2 w-full flex justify-around rounded-lg">
                 <a href="#" className="bg-blue-500 text-white py-2 px-6 rounded-lg flex items-center space-x-2 shadow-md hover:bg-blue-400">
                     <span>เรียกพนักงาน</span>
                 </a>
@@ -154,6 +154,7 @@ const HistoryOrder: React.FC<HistoryOrderProps> = ({ onClose, table_id, table_nu
                     <span>กลับหน้าหลัก</span>
                 </a>
             </div>
+
         </Dialog >
     );
 };
