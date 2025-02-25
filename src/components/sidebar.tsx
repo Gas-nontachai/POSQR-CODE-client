@@ -101,9 +101,9 @@ const Sidebar: FC = () => {
                 <Divider light />
                 {/* Contact Link */}
                 <ListItem disablePadding>
-                    <ListItemButton component="a" href="/stores">
+                    <ListItemButton component="a" href="/store">
                         <Store className="mr-3" />
-                        <ListItemText primary="Stores" />
+                        <ListItemText primary="Store" />
                     </ListItemButton>
                 </ListItem>
 

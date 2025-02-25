@@ -9,4 +9,4 @@ export * from "./useTable";
 export * from "./useTableStatus";
 export * from "./useUser";
 export * from "./useUserRole";
-export * from "./useStores";
+export * from "./useStore";
