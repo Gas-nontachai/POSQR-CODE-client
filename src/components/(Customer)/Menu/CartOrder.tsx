@@ -159,7 +159,7 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
         <Dialog fullScreen open={true} onClose={onClose}>
             <AppBar sx={{ position: "relative", backgroundColor: "#f3f4f6", boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)" }}>
                 <Toolbar className="flex justify-center p-4 text-lg text-gray-800">
-                    <ShoppingCart /><span className='ml-1 font-[600]'>ตะกร้า</span>
+                    🛒<span className='ml-1 font-[600]'>ตะกร้า</span>
                 </Toolbar>
                 <button className="hover:text-gray-700 text-gray-500 p-2 rounded-full absolute right-2 top-2" onClick={onClose}>
                     <Close />
@@ -174,8 +174,8 @@ const CartOrder: React.FC<ShowMenuDetailProps> = ({ table_id, table_number, bill
                         <Grid  >
                             <div className="text-center text-xl text-gray-500 py-5">
                                 {error
-                                    ? <p>{error}</p>
-                                    : <p className='text-[17px]'>ไม่มีรายการในตะกร้า..</p>
+                                    ? <p className='text-[17px]'>😡 {error}</p>
+                                    : <p className='text-[17px]'>🛒 ไม่มีรายการในตะกร้า..</p>
                                 }
                             </div>
                         </Grid>

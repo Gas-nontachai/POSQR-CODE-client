@@ -1,10 +1,17 @@
 "use client";
 import { AppBar, Drawer, Toolbar, IconButton, CssBaseline } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
-import { Sidebar } from "@/components/component";
+import Sidebar from "@/components/sidebar";
 import "./globals.css";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+ 
+const theme = createTheme({
+  typography: {
+    fontFamily: "Kanit, sans-serif",
+  },
+});
 
 export default function RootLayout({
   children,
@@ -22,44 +29,43 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="relative">
-        {/* Apply CssBaseline for consistent styling */}
-        <CssBaseline />
+        <ThemeProvider theme={theme}> 
+          <CssBaseline />
 
-        {!noNavbarPages.includes(pathname) && (
-          <div className="flex">
-            <Drawer
-              open={openSidebar}
-              onClose={toggleSidebar}
-              variant="temporary"
-              sx={{
-                "& .MuiDrawer-paper": {
-                  width: 240,
-                },
-              }}
-            >
-              <Sidebar />
-            </Drawer>
+          {!noNavbarPages.includes(pathname) && (
+            <div className="flex">
+              <Drawer
+                open={openSidebar}
+                onClose={toggleSidebar}
+                variant="temporary"
+                sx={{
+                  "& .MuiDrawer-paper": {
+                    width: 240,
+                  },
+                }}
+              >
+                <Sidebar />
+              </Drawer>
 
-            {/* Content with margin for sidebar */}
-            <div className="flex flex-col w-full">
-              <AppBar position="sticky" sx={{ backgroundColor: "#1f2937", zIndex: 2 }}>
-                <Toolbar>
-                  <IconButton edge="start" color="inherit" onClick={toggleSidebar}>
-                    <MenuIcon />
-                  </IconButton>
-                  <span className="text-2xl font-bold">GGas</span>
-                </Toolbar>
-              </AppBar>
-              {/* Main Content */}
-              <div >{children}</div>
+              {/* Content with margin for sidebar */}
+              <div className="flex flex-col w-full">
+                <AppBar position="sticky" sx={{ backgroundColor: "#1f2937", zIndex: 2 }}>
+                  <Toolbar>
+                    <IconButton edge="start" color="inherit" onClick={toggleSidebar}>
+                      <MenuIcon />
+                    </IconButton>
+                    <span className="text-2xl font-bold">GGas</span>
+                  </Toolbar>
+                </AppBar>
+                {/* Main Content */}
+                <div>{children}</div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* If path matches noNavbarPages, render just the content */}
-        {noNavbarPages.includes(pathname) && (
-          <div className="w-full">{children}</div>
-        )}
+          {/* If path matches noNavbarPages, render just the content */}
+          {noNavbarPages.includes(pathname) && <div className="w-full">{children}</div>}
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -99,50 +99,57 @@ const HistoryOrder: React.FC<HistoryOrderProps> = ({ onClose, table_id, table_nu
                             </li>
                         ))
                     ) : (
-                        orderItems.map((item, index) => (
-                            <li key={index} className="py-2 flex items-center justify-between border-b border-gray-300">
-                                <div className="flex items-center">
-                                    {item.menu_image ? (
-                                        <img
-                                            src={`${API_URL}${item.menu_image}`}
-                                            alt={item.menu_name}
-                                            className="w-12 h-12 object-cover mr-2"
-                                        />
-                                    ) : (
-                                        <div className="w-12 h-12 rounded-full bg-gray-300 animate-pulse mr-2" />
-                                    )}
-                                    <div>
-                                        <div className="font-medium">{item.menu_name}</div>
-                                        <div className="text-sm text-gray-500">
-                                            จำนวน: {item.cart_amount} x ราคา: ฿{item.menu_price}
+                        orderItems.length === 0 ?
+                            <>
+                                <div className="text-center text-xl text-gray-500 py-5">
+                                    <p className='text-[17px]'>ไม่มีประวัติการสั่งซื้อ..</p>
+                                </div>
+                            </>
+                            :
+                            orderItems.map((item, index) => (
+                                <li key={index} className="py-2 flex items-center justify-between border-b border-gray-300">
+                                    <div className="flex items-center">
+                                        {item.menu_image ? (
+                                            <img
+                                                src={`${API_URL}${item.menu_image}`}
+                                                alt={item.menu_name}
+                                                className="w-12 h-12 object-cover mr-2"
+                                            />
+                                        ) : (
+                                            <div className="w-12 h-12 rounded-full bg-gray-300 animate-pulse mr-2" />
+                                        )}
+                                        <div>
+                                            <div className="font-medium">{item.menu_name}</div>
+                                            <div className="text-sm text-gray-500">
+                                                จำนวน: {item.cart_amount} x ราคา: ฿{item.menu_price}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div
-                                    className="text-sm text-right py-2 px-1 -mb-1 rounded-l-xl font-semibold shadow-lg"
-                                    style={{
-                                        writingMode: 'vertical-rl',
-                                        backgroundColor:
-                                            item.order_status === 'pending'
-                                                ? '#fcd34d'
-                                                : item.order_status === 'served'
-                                                    ? '#34d399'
-                                                    : '#9ca3af',
-                                        color:
-                                            item.order_status === 'pending'
-                                                ? '#374151'
-                                                : item.order_status === 'served'
-                                                    ? '#fff'
-                                                    : '#9ca3af',
-                                        letterSpacing: '0.5px',
-                                    }}
-                                >
-                                    <>
-                                        {item.order_status === 'pending' ? 'รอเสิร์ฟ' : item.order_status === 'served' ? 'เสิร์ฟแล้ว' : ''}
-                                    </>
-                                </div>
-                            </li>
-                        ))
+                                    <div
+                                        className="text-sm text-right py-2 px-1 -mb-1 rounded-l-xl font-semibold shadow-lg"
+                                        style={{
+                                            writingMode: 'vertical-rl',
+                                            backgroundColor:
+                                                item.order_status === 'pending'
+                                                    ? '#fcd34d'
+                                                    : item.order_status === 'served'
+                                                        ? '#34d399'
+                                                        : '#9ca3af',
+                                            color:
+                                                item.order_status === 'pending'
+                                                    ? '#374151'
+                                                    : item.order_status === 'served'
+                                                        ? '#fff'
+                                                        : '#9ca3af',
+                                            letterSpacing: '0.5px',
+                                        }}
+                                    >
+                                        <>
+                                            {item.order_status === 'pending' ? 'รอเสิร์ฟ' : item.order_status === 'served' ? 'เสิร์ฟแล้ว' : ''}
+                                        </>
+                                    </div>
+                                </li>
+                            ))
                     )}
                 </ul>
             </div>
@@ -151,7 +158,7 @@ const HistoryOrder: React.FC<HistoryOrderProps> = ({ onClose, table_id, table_nu
                     <span>เรียกพนักงาน</span>
                 </a>
                 <a href={`/home?table_id=${table_id}&table_number=${table_number}&bill_id=${bill_id}`} className="bg-gray-500 text-white py-2 px-6 rounded-lg flex items-center space-x-2 shadow-md hover:bg-gray-600">
-                    <span>กลับหน้าหลัก</span>
+                    <Home /><span>หน้าหลัก</span>
                 </a>
             </div>
 
