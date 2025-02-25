@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import { List, ListItem, ListItemButton, ListItemText, Divider, Collapse } from "@mui/material";
-import { Home, Restaurant, Category, Tune, ShoppingCart, TableChart, BarChart, People, ExpandLess, ExpandMore, ExitToApp, SupportAgent, History, CreditScore, Fastfood } from "@mui/icons-material";
+import { Home, Restaurant, Category, Tune, ShoppingCart, TableChart, BarChart, People, ExpandLess, ExpandMore, ExitToApp, SupportAgent, History, CreditScore, Fastfood, Store } from "@mui/icons-material";
 
 const Sidebar: FC = () => {
     const [openManage, setOpenManage] = useState(false);
@@ -100,12 +100,12 @@ const Sidebar: FC = () => {
                 </Collapse>
                 <Divider light />
                 {/* Contact Link */}
-                {/* <ListItem disablePadding>
-                    <ListItemButton component="a" href="/contact">
-                        <ContactMail className="mr-3" />
-                        <ListItemText primary="Contact" />
+                <ListItem disablePadding>
+                    <ListItemButton component="a" href="/stores">
+                        <Store className="mr-3" />
+                        <ListItemText primary="Stores" />
                     </ListItemButton>
-                </ListItem> */}
+                </ListItem>
 
                 {/* Logout Link */}
                 <ListItem disablePadding >
