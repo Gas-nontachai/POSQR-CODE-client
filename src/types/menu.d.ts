@@ -6,5 +6,5 @@ export type Menu = {
     menu_status: string,
     menu_amount: number,
     category_name: string,
-    adddate?: string | Date
+    add_date?: string | Date
 }
