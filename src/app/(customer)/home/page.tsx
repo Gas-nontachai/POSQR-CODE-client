@@ -3,18 +3,17 @@ import { useState, useEffect, useRef } from "react";
 import { formatDate } from '@/utils/date-func';
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-    AlignHorizontalLeft, Search, Restaurant, RefreshOutlined, ShoppingCart, AddLocation, History, LocationOn, AccessTime
+    AlignHorizontalLeft, Search, Timer, TimerOff, RefreshOutlined, ShoppingCart, AddLocation, History, LocationOn, AccessTime,
 } from '@mui/icons-material';
 import { Skeleton, List, ListItem, ListItemText, Drawer, Box, Tab, Tabs, Divider, Button, Card, CardContent, Typography } from "@mui/material";
 
-import { Category, Menu, Bill } from "@/types/types"
-
-import { useMenu, useBill, useCart } from "@/hooks/hooks"
-import { useCategory } from "@/hooks/useCategory"
+import { Category, Menu, Bill, Store } from "@/types/types"
+import { useMenu, useBill, useCart, useCategory, useStore } from "@/hooks/hooks"
 const { getMenuBy } = useMenu()
 const { getCartBy } = useCart()
 const { getBillByID } = useBill()
 const { getCategoryBy } = useCategory()
+const { getStoreBy } = useStore()
 
 import ShowMenuDetail from "@/components/(Customer)/Menu/ShowMenuDetail";
 import CartOrder from "@/components/(Customer)/Menu/CartOrder";
@@ -27,7 +26,6 @@ const CustomerHomePage = () => {
     const table_id = searchParams.get("table_id") || '';
     const table_number = searchParams.get("table_number") || '';
     const bill_id = searchParams.get("bill_id") || '';
-
     const [searchMenu, setSearchMenu] = useState('');
     const [showReset, setShowReset] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -35,9 +33,10 @@ const CustomerHomePage = () => {
     const [isHistoryOrder, setIsHistoryOrder] = useState(false);
     const [isMenuDetail, setIsMenuDetail] = useState(false);
     const [menuItems, setMenuItems] = useState<Menu[]>([]);
+    const [storeItems, setStoreItems] = useState<Store[]>([]);
     const [billItems, setBillItems] = useState<Bill>();
-    const [loading, setLoading] = useState(true);
     const [categoryItems, setCategoryItems] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
     const menu_id = useRef('');
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const [cartItemCount, setCartItemCount] = useState(0);
@@ -70,6 +69,8 @@ const CustomerHomePage = () => {
             setCategoryItems(cateData);
             const billData = await getBillByID({ bill_id: bill_id || '' });
             setBillItems(billData);
+            const storeData = await getStoreBy()
+            setStoreItems(storeData)
         } catch (error) {
             console.error("Error:", error);
         } finally {
@@ -148,38 +149,46 @@ const CustomerHomePage = () => {
                     >
                         <History className="w-7 h-7 text-gray-700 hover:text-gray-900" />
                     </a>
-                </div> 
+                </div>
                 <Card elevation={1} className="mb-3">
-                    <CardContent>
-                        <Box display="flex" flexDirection="column" alignItems="start" mb={2}>
-                            <Box display="flex" alignItems="center">
-                                <LocationOn sx={{ fontSize: 32, color: "error.main", mr: 1 }} />
-                                <Typography variant="h6" fontWeight="bold" color="text.primary">
-                                    ชื่อร้าน
+                    {storeItems.map((item) => (
+                        <CardContent key={item.store_id}>
+                            <Box display="flex" flexDirection="column" alignItems="start" mb={2}>
+                                <Box display="flex" alignItems="center">
+                                    <LocationOn sx={{ fontSize: 32, color: "error.main", mr: 1 }} />
+                                    <Typography variant="h5" fontWeight="bold" color="text.primary">
+                                        {item.store_name}
+                                    </Typography>
+                                </Box>
+                                <Typography variant="h6" color="text.secondary" mt={1}>
+                                    {item.store_slogan}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {item.store_description}
                                 </Typography>
                             </Box>
-                            <Typography variant="body2" color="text.secondary" mt={1}>
-                                สโลแกน....
+                            <Typography variant="h6" fontWeight="semibold" color="text.primary">
+                                (โต๊ะ : {table_number})
                             </Typography>
-                        </Box>
-                        <Typography variant="h6" fontWeight="semibold" color="text.primary">
-                            (โต๊ะ : {table_number})
-                        </Typography>
-                        <Box display="flex" flexDirection="column" gap={1}>
-                            <Box display="flex" alignItems="center">
-                                <AccessTime sx={{ fontSize: 20, color: "text.secondary", mr: 1 }} />
-                                <Typography variant="body2" color="text.primary">
-                                    <strong>เวลาเริ่มทาน:</strong> {formatDate(billItems?.start_time, "HH:mm (dd/MM/yyyy)")}
-                                </Typography>
+                            <Box display="flex" flexDirection="column" gap={1} mt={2}>
+                                {/* Start Time */}
+                                <Box display="flex" alignItems="center">
+                                    <Timer sx={{ fontSize: 20, color: "text.secondary", mr: 1 }} />
+                                    <Typography variant="body2" color="text.primary">
+                                        <strong>เวลาเริ่มทาน:</strong> {formatDate(billItems?.start_time, "HH:mm (dd/MM/yyyy)")}
+                                    </Typography>
+                                </Box>
+
+                                {/* Expiry Time */}
+                                <Box display="flex" alignItems="center">
+                                    <TimerOff sx={{ fontSize: 20, color: "text.secondary", mr: 1 }} />
+                                    <Typography variant="body2" color="text.primary">
+                                        <strong>เวลาหมดอายุ:</strong> {formatDate(billItems?.expired_time, "HH:mm (dd/MM/yyyy)")}
+                                    </Typography>
+                                </Box> 
                             </Box>
-                            <Box display="flex" alignItems="center">
-                                <AccessTime sx={{ fontSize: 20, color: "text.secondary", mr: 1 }} />
-                                <Typography variant="body2" color="text.primary">
-                                    <strong>เวลาหมดอายุ:</strong> {formatDate(billItems?.expired_time, "HH:mm (dd/MM/yyyy)")}
-                                </Typography>
-                            </Box>
-                        </Box>
-                    </CardContent>
+                        </CardContent>
+                    ))}
                 </Card>
                 <div className="flex items-center">
                     <div className="relative w-full">
@@ -253,7 +262,7 @@ const CustomerHomePage = () => {
                     menu_id={menu_id}
                     cartItemCount={cartItemCount}
                     setIsCart={setIsCart}
-                />  
+                />
 
                 {isSidebarOpen && (
                     <Drawer
